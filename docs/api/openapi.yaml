@@ -1,0 +1,772 @@
+openapi: 3.0.3
+info:
+  title: CocinaVecina API
+  version: 0.1.0
+  description: >
+    Contrato de la API v1 (Anexo I del SRS, RNF-C-2). JSON (RFC 8259), fechas ISO 8601 en UTC y montos en CLP
+    enteros. Los errores siguen RFC 9457 (application/problem+json) y, si violan una regla de negocio,
+    indican cuál en la propiedad "rule". El canal de eventos en tiempo real es el WebSocket /v1/events
+    (token en el encabezado Authorization).
+servers:
+  - url: http://localhost:8080
+    description: Desarrollo
+  - url: https://{domain}
+    description: Servidor (perfil tls)
+    variables:
+      domain:
+        default: localhost
+        description: Dominio del servidor (PUBLIC_URL)
+security:
+  - bearer: []
+tags:
+  - name: accounts
+    description: Registro, sesión y derechos del titular
+  - name: offers
+    description: Puntos de retiro, publicación y búsqueda
+  - name: negotiation
+    description: Solicitudes, contraofertas y aceptación
+  - name: orders
+    description: Pedido, código de entrega y retiro
+  - name: moderation
+    description: Reportes y panel del moderador
+  - name: photos
+    description: Subida de fotos de las ofertas
+  - name: devices
+    description: Tokens de notificaciones push
+paths:
+  /v1/auth/register:
+    post:
+      tags: [accounts]
+      operationId: register
+      summary: Crear cuenta (RF-1)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SignUpRequest" }
+      responses:
+        "201":
+          description: Cuenta creada; se envía el enlace de verificación
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SignUpResponse" }
+        "409": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/auth/verify:
+    get:
+      tags: [accounts]
+      operationId: verify
+      summary: Verificar el correo con el enlace recibido (RF-1)
+      security: []
+      parameters:
+        - { name: token, in: query, required: true, schema: { type: string } }
+      responses:
+        "200": { description: Cuenta verificada, content: { text/plain: { schema: { type: string } } } }
+        "409": { $ref: "#/components/responses/Problem" }
+  /v1/auth/login:
+    post:
+      tags: [accounts]
+      operationId: login
+      summary: Iniciar sesión (RF-1)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: Token de acceso de 15 min
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenResponse" }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/account/export:
+    get:
+      tags: [accounts]
+      operationId: exportAccount
+      summary: Descargar los propios datos en JSON (RF-13)
+      responses:
+        "200": { description: Datos del titular, content: { application/json: { schema: { type: object } } } }
+        "401": { $ref: "#/components/responses/Problem" }
+  /v1/account:
+    delete:
+      tags: [accounts]
+      operationId: deleteAccount
+      summary: Eliminar la cuenta (RF-13)
+      responses:
+        "204": { description: Datos suprimidos o anonimizados }
+        "409": { $ref: "#/components/responses/Problem" }
+  /v1/pickup-points:
+    get:
+      tags: [offers]
+      operationId: myPickupPoints
+      summary: Puntos de retiro del vendedor
+      responses:
+        "200":
+          description: Lista
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/PickupPointView" } }
+        "403": { $ref: "#/components/responses/Problem" }
+    post:
+      tags: [offers]
+      operationId: createPickupPoint
+      summary: Crear punto de retiro (geocodificación y celda de 400 m)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewPickupPoint" }
+      responses:
+        "201":
+          description: Creado; solo expone el centro de la celda
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PickupPointView" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/offers:
+    post:
+      tags: [offers]
+      operationId: publishOffer
+      summary: Publicar oferta efímera (RF-2)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewOffer" }
+      responses:
+        "201":
+          description: Oferta activa
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OfferView" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/offers/nearby:
+    get:
+      tags: [offers]
+      operationId: nearbyOffers
+      summary: Ofertas activas dentro del radio (RF-4)
+      parameters:
+        - { name: lat, in: query, required: true, schema: { type: number } }
+        - { name: lon, in: query, required: true, schema: { type: number } }
+        - { name: radius, in: query, schema: { type: integer, enum: [500, 1500, 3000, 5000], default: 1500 } }
+        - { name: category, in: query, schema: { $ref: "#/components/schemas/Category" } }
+        - { name: excludeAllergens, in: query, schema: { type: array, items: { $ref: "#/components/schemas/Allergen" } } }
+        - { name: order, in: query, schema: { type: string, enum: [DISTANCE, TIME_LEFT], default: DISTANCE } }
+      responses:
+        "200":
+          description: Distancias redondeadas a 100 m desde el centro de la celda (RB-6)
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/NearbyOffer" } }
+        "429": { $ref: "#/components/responses/Problem" }
+  /v1/offers/mine:
+    get:
+      tags: [offers]
+      operationId: myOffers
+      summary: Ofertas del vendedor
+      responses:
+        "200":
+          description: Lista
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/OfferView" } }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/offers/{id}:
+    get:
+      tags: [offers]
+      operationId: offerDetail
+      summary: Detalle público de una oferta
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200":
+          description: Detalle
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OfferView" }
+        "404": { $ref: "#/components/responses/Problem" }
+  /v1/offers/{id}/close:
+    patch:
+      tags: [offers]
+      operationId: closeOffer
+      summary: Cerrar la oferta antes de su término (RF-3)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "204": { description: Cerrada }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/offers/{offerId}/purchase-requests:
+    post:
+      tags: [negotiation]
+      operationId: submitPurchaseRequest
+      summary: Solicitar a precio base o proponer otro precio (RF-5, RF-6)
+      parameters:
+        - { name: offerId, in: path, required: true, schema: { type: integer, format: int64 } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewPurchaseRequest" }
+      responses:
+        "201":
+          description: Solicitud en estado OFFER_SENT
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PurchaseRequestView" }
+        "409": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/purchase-requests/pending:
+    get:
+      tags: [negotiation]
+      operationId: pendingPurchaseRequests
+      summary: Solicitudes abiertas que esperan respuesta del vendedor
+      responses:
+        "200": { $ref: "#/components/responses/PurchaseRequestList" }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/purchase-requests/mine:
+    get:
+      tags: [negotiation]
+      operationId: myPurchaseRequests
+      summary: Solicitudes del comprador
+      responses:
+        "200": { $ref: "#/components/responses/PurchaseRequestList" }
+        "401": { $ref: "#/components/responses/Problem" }
+  /v1/purchase-requests/{id}:
+    get:
+      tags: [negotiation]
+      operationId: viewPurchaseRequest
+      summary: Detalle de la solicitud con su historial de propuestas
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { $ref: "#/components/responses/PurchaseRequest" }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/purchase-requests/{id}/counteroffers:
+    post:
+      tags: [negotiation]
+      operationId: counteroffer
+      summary: Contraoferta del vendedor (RF-7, RB-2, RB-3)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Price" }
+      responses:
+        "200": { $ref: "#/components/responses/PurchaseRequest" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/purchase-requests/{id}/proposals:
+    post:
+      tags: [negotiation]
+      operationId: propose
+      summary: Nueva propuesta del comprador tras una contraoferta (RF-6)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Price" }
+      responses:
+        "200": { $ref: "#/components/responses/PurchaseRequest" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/purchase-requests/{id}/accept:
+    post:
+      tags: [negotiation]
+      operationId: accept
+      summary: Aceptar la propuesta vigente y crear el pedido (RF-7)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { $ref: "#/components/responses/PurchaseRequest" }
+        "409": { $ref: "#/components/responses/Problem" }
+  /v1/purchase-requests/{id}/reject:
+    post:
+      tags: [negotiation]
+      operationId: reject
+      summary: Rechazar la propuesta vigente (RF-7)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { $ref: "#/components/responses/PurchaseRequest" }
+        "409": { $ref: "#/components/responses/Problem" }
+  /v1/purchase-requests/{id}/withdraw:
+    post:
+      tags: [negotiation]
+      operationId: withdraw
+      summary: El comprador retira su solicitud abierta
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { $ref: "#/components/responses/PurchaseRequest" }
+        "409": { $ref: "#/components/responses/Problem" }
+  /v1/orders:
+    get:
+      tags: [orders]
+      operationId: myOrders
+      summary: Pedidos del usuario como comprador o vendedor (RF-12)
+      responses:
+        "200":
+          description: Lista
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/OrderView" } }
+        "401": { $ref: "#/components/responses/Problem" }
+  /v1/orders/{id}:
+    get:
+      tags: [orders]
+      operationId: viewOrder
+      summary: Estado del pedido (RF-16)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { $ref: "#/components/responses/Order" }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/orders/{id}/pickup:
+    get:
+      tags: [orders]
+      operationId: pickupDetails
+      summary: Dirección, indicaciones y teléfono para el comprador (RF-8, RB-5)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200":
+          description: Datos desbloqueados
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PickupDetailsView" }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/orders/{id}/code:
+    post:
+      tags: [orders]
+      operationId: issueCode
+      summary: Emitir el código de entrega al comprador (RF-15, RB-11)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200":
+          description: Código de 6 dígitos; el servidor guarda solo su HMAC
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CodeView" }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/orders/{id}/ready:
+    patch:
+      tags: [orders]
+      operationId: markReady
+      summary: Marcar listo para retiro (RF-16)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { $ref: "#/components/responses/Order" }
+        "409": { $ref: "#/components/responses/Problem" }
+  /v1/orders/{id}/delivery:
+    post:
+      tags: [orders]
+      operationId: validateDelivery
+      summary: Validar el código y marcar Entregado (RF-15)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CodeValidation" }
+      responses:
+        "200": { $ref: "#/components/responses/Order" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/orders/{id}/cancellation:
+    post:
+      tags: [orders]
+      operationId: cancelOrder
+      summary: Cancelar un pedido Aceptado con motivo (RF-10, RB-10)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Cancellation" }
+      responses:
+        "200": { $ref: "#/components/responses/Order" }
+        "409": { $ref: "#/components/responses/Problem" }
+  /v1/offers/{id}/reports:
+    post:
+      tags: [moderation]
+      operationId: reportOffer
+      summary: Reportar una oferta (RF-9, RB-8)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewReport" }
+      responses:
+        "202": { description: Reporte registrado }
+        "404": { $ref: "#/components/responses/Problem" }
+  /v1/moderation/hidden-offers:
+    get:
+      tags: [moderation]
+      operationId: moderationQueue
+      summary: Ofertas ocultas a la espera de revisión (RF-17)
+      responses:
+        "200":
+          description: Cola de revisión
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/OfferUnderReview" } }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/moderation/offers/{id}:
+    patch:
+      tags: [moderation]
+      operationId: decideOffer
+      summary: Reactivar o retirar una oferta (RF-17)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OfferDecision" }
+      responses:
+        "204": { description: Aplicada y auditada }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/moderation/accounts/{id}:
+    patch:
+      tags: [moderation]
+      operationId: decideAccount
+      summary: Suspender o reactivar una cuenta (RF-17)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AccountDecision" }
+      responses:
+        "204": { description: Aplicada y auditada }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/photos/uploads:
+    post:
+      tags: [photos]
+      operationId: prepareUpload
+      summary: Obtener la URL para subir la foto de una oferta (JPEG o WebP, ≤ 1 MB)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contentType]
+              properties:
+                contentType: { type: string, enum: [image/jpeg, image/webp] }
+      responses:
+        "200":
+          description: URL firmada (S3) o ruta local de subida
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UploadUrl" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/photos/local/{key}:
+    put:
+      tags: [photos]
+      operationId: uploadLocal
+      summary: Subida directa cuando PHOTOS_TYPE=local
+      parameters:
+        - { name: key, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          image/jpeg: { schema: { type: string, format: binary } }
+          image/webp: { schema: { type: string, format: binary } }
+      responses:
+        "204": { description: Guardada }
+        "403": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/devices:
+    post:
+      tags: [devices]
+      operationId: registerDevice
+      summary: Registrar el token de push del dispositivo (RF-11)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pushToken]
+              properties:
+                pushToken: { type: string }
+      responses:
+        "204": { description: Registrado }
+        "401": { $ref: "#/components/responses/Problem" }
+  /v1/devices/{pushToken}:
+    delete:
+      tags: [devices]
+      operationId: deleteDevice
+      summary: Dar de baja el token al cerrar sesión
+      parameters:
+        - { name: pushToken, in: path, required: true, schema: { type: string } }
+      responses:
+        "204": { description: Eliminado }
+        "401": { $ref: "#/components/responses/Problem" }
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer, format: int64 }
+  responses:
+    Problem:
+      description: Error (RFC 9457)
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+    PurchaseRequest:
+      description: Solicitud actualizada
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/PurchaseRequestView" }
+    PurchaseRequestList:
+      description: Lista de solicitudes
+      content:
+        application/json:
+          schema: { type: array, items: { $ref: "#/components/schemas/PurchaseRequestView" } }
+    Order:
+      description: Pedido actualizado
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/OrderView" }
+  schemas:
+    Problem:
+      type: object
+      properties:
+        status: { type: integer }
+        title: { type: string }
+        detail: { type: string }
+        rule: { type: string, example: RB-2 }
+        fields: { type: array, items: { type: string }, example: ["title: no debe estar vacío"] }
+    Role:
+      type: string
+      enum: [BUYER, SELLER, MODERATOR]
+    Category:
+      type: string
+      enum: [MAIN_COURSE, EMPANADAS, SOUPS_AND_CREAMS, SALADS, PASTRY, HOMEMADE_BREAD, OTHER]
+    Allergen:
+      type: string
+      enum: [GLUTEN, MILK, EGG, TREE_NUTS, PEANUT, SOY, FISH, SHELLFISH, SESAME, NONE_KNOWN]
+    RiskIngredient:
+      type: string
+      enum: [ALCOHOL, RAW_FISH_OR_SEAFOOD, RAW_OR_UNDERCOOKED_EGG, UNPASTEURIZED_DAIRY, HOME_CANNED, INFANT_FOOD]
+    OfferStatus:
+      type: string
+      enum: [ACTIVE, SOLD_OUT, EXPIRED, CLOSED, HIDDEN, WITHDRAWN]
+    PurchaseRequestStatus:
+      type: string
+      enum: [OFFER_SENT, COUNTEROFFER, ACCEPTED, REJECTED, CANCELLED, EXPIRED]
+    Party:
+      type: string
+      enum: [BUYER, SELLER]
+    OrderStatus:
+      type: string
+      enum: [ACCEPTED, READY_FOR_PICKUP, DELIVERED, CANCELLED, NOT_PICKED_UP]
+    ReportReason:
+      type: string
+      enum: [HEALTH_RISK, FORBIDDEN_CATEGORY, INAPPROPRIATE_CONTENT, FRAUD, OTHER]
+    SignUpRequest:
+      type: object
+      required: [email, displayName, password, role, adult, acceptsTerms]
+      properties:
+        email: { type: string, format: email }
+        displayName: { type: string, maxLength: 60 }
+        password: { type: string, minLength: 10, maxLength: 128 }
+        phone: { type: string, pattern: "^\\+?[0-9 ]{8,15}$" }
+        role: { type: string, enum: [BUYER, SELLER] }
+        adult: { type: boolean }
+        acceptsTerms: { type: boolean }
+    SignUpResponse:
+      type: object
+      properties:
+        userId: { type: integer, format: int64 }
+        message: { type: string }
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string }
+    TokenResponse:
+      type: object
+      properties:
+        accessToken: { type: string }
+        expiresInSeconds: { type: integer }
+        userId: { type: integer, format: int64 }
+        role: { $ref: "#/components/schemas/Role" }
+        verified: { type: boolean }
+    NewPickupPoint:
+      type: object
+      required: [alias, address]
+      properties:
+        alias: { type: string, maxLength: 40 }
+        address: { type: string, maxLength: 200 }
+        instructions: { type: string, maxLength: 300 }
+        latitude: { type: number }
+        longitude: { type: number }
+    PickupPointView:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        alias: { type: string }
+        approxLatitude: { type: number }
+        approxLongitude: { type: number }
+    NewOffer:
+      type: object
+      required: [pickupPointId, title, category, basePrice, minPrice, portions, allergens, preparedAt, expiresAt]
+      properties:
+        pickupPointId: { type: integer, format: int64 }
+        title: { type: string, maxLength: 80 }
+        description: { type: string, maxLength: 300 }
+        category: { $ref: "#/components/schemas/Category" }
+        photoKey: { type: string }
+        basePrice: { type: integer, multipleOf: 100 }
+        minPrice: { type: integer, multipleOf: 100 }
+        portions: { type: integer, minimum: 1, maximum: 50 }
+        allergens: { type: array, minItems: 1, items: { $ref: "#/components/schemas/Allergen" } }
+        excludedIngredients: { type: array, items: { $ref: "#/components/schemas/RiskIngredient" } }
+        preparedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+    OfferView:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        sellerId: { type: integer, format: int64 }
+        seller: { type: string }
+        title: { type: string }
+        description: { type: string }
+        category: { $ref: "#/components/schemas/Category" }
+        photoUrl: { type: string }
+        basePrice: { type: integer }
+        minPrice: { type: integer }
+        availablePortions: { type: integer }
+        allergens: { type: array, items: { $ref: "#/components/schemas/Allergen" } }
+        preparedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        status: { $ref: "#/components/schemas/OfferStatus" }
+        approxLatitude: { type: number }
+        approxLongitude: { type: number }
+    NearbyOffer:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        title: { type: string }
+        category: { $ref: "#/components/schemas/Category" }
+        photoUrl: { type: string }
+        basePrice: { type: integer }
+        minPrice: { type: integer }
+        availablePortions: { type: integer }
+        expiresAt: { type: string, format: date-time }
+        approxLatitude: { type: number }
+        approxLongitude: { type: number }
+        distanceMeters: { type: integer, format: int64 }
+    NewPurchaseRequest:
+      type: object
+      required: [portions]
+      properties:
+        portions: { type: integer, minimum: 1, maximum: 5 }
+        unitPrice: { type: integer, multipleOf: 100 }
+    Price:
+      type: object
+      required: [unitPrice]
+      properties:
+        unitPrice: { type: integer, multipleOf: 100 }
+    ProposalView:
+      type: object
+      properties:
+        party: { $ref: "#/components/schemas/Party" }
+        unitPrice: { type: integer }
+        createdAt: { type: string, format: date-time }
+    PurchaseRequestView:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        offerId: { type: integer, format: int64 }
+        portions: { type: integer }
+        rounds: { type: integer, maximum: 3 }
+        currentPrice: { type: integer }
+        currentParty: { $ref: "#/components/schemas/Party" }
+        turn: { $ref: "#/components/schemas/Party" }
+        status: { $ref: "#/components/schemas/PurchaseRequestStatus" }
+        closeReason: { type: string }
+        orderId: { type: integer, format: int64 }
+        proposals: { type: array, items: { $ref: "#/components/schemas/ProposalView" } }
+    OrderView:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        offerId: { type: integer, format: int64 }
+        buyerId: { type: integer, format: int64 }
+        sellerId: { type: integer, format: int64 }
+        agreedPrice: { type: integer }
+        portions: { type: integer }
+        status: { $ref: "#/components/schemas/OrderStatus" }
+        acceptedAt: { type: string, format: date-time }
+        readyAt: { type: string, format: date-time }
+        deliveredAt: { type: string, format: date-time }
+        windowEnd: { type: string, format: date-time }
+    CodeView:
+      type: object
+      properties:
+        orderId: { type: integer, format: int64 }
+        code: { type: string, pattern: "^[0-9]{6}$" }
+        validUntil: { type: string, format: date-time }
+    CodeValidation:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, pattern: "^[0-9]{6}$" }
+    Cancellation:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string, maxLength: 200 }
+    PickupDetailsView:
+      type: object
+      properties:
+        address: { type: string }
+        instructions: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        phone: { type: string }
+    NewReport:
+      type: object
+      required: [reason]
+      properties:
+        reason: { $ref: "#/components/schemas/ReportReason" }
+        detail: { type: string, maxLength: 300 }
+    ReportView:
+      type: object
+      properties:
+        reason: { $ref: "#/components/schemas/ReportReason" }
+        detail: { type: string }
+        createdAt: { type: string, format: date-time }
+    OfferUnderReview:
+      type: object
+      properties:
+        offerId: { type: integer, format: int64 }
+        title: { type: string }
+        sellerId: { type: integer, format: int64 }
+        sellerReportCount: { type: integer, format: int64 }
+        reports: { type: array, items: { $ref: "#/components/schemas/ReportView" } }
+    OfferDecision:
+      type: object
+      required: [action, reason]
+      properties:
+        action: { type: string, enum: [REACTIVATE, WITHDRAW] }
+        reason: { type: string, maxLength: 200 }
+    AccountDecision:
+      type: object
+      required: [action, reason]
+      properties:
+        action: { type: string, enum: [SUSPEND, REACTIVATE] }
+        reason: { type: string, maxLength: 200 }
+    UploadUrl:
+      type: object
+      properties:
+        key: { type: string }
+        url: { type: string }
+        method: { type: string, enum: [PUT] }
+        contentType: { type: string }

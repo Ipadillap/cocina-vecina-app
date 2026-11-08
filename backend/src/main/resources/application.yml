@@ -1,0 +1,81 @@
+spring:
+  application:
+    name: cocinavecina-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/cocinavecina}
+    username: ${DB_USER:cocinavecina}
+    password: ${DB_PASSWORD:cocinavecina}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+
+server:
+  port: ${PORT:8080}
+  compression:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+cocinavecina:
+  public-url: ${PUBLIC_URL:http://localhost:8080}
+  jwt:
+    secret: ${JWT_SECRET:dev-only-change-this-secret-of-32-bytes!!}
+    access-token-ttl: 15m
+  encryption:
+    key-base64: ${ENCRYPTION_KEY:iui0vbs1Xi9OQM3kQTqsohgZKI8vOKPeBXIVvcHok7w=}
+  code:
+    hmac-key: ${CODE_HMAC_KEY:dev-only-delivery-code-hmac-key}
+  photos:
+    type: ${PHOTOS_TYPE:local}
+    directory: ${PHOTOS_DIR:./photos}
+    public-url: ${PHOTOS_PUBLIC_URL:/photos}
+    s3:
+      endpoint: ${S3_ENDPOINT:}
+      bucket: ${S3_BUCKET:}
+      access-key: ${S3_ACCESS_KEY:}
+      secret-key: ${S3_SECRET_KEY:}
+  nominatim:
+    url: https://nominatim.openstreetmap.org
+    contact: ${TEAM_CONTACT:team@example.com}
+  search:
+    limit-per-minute: 60
+  tasks:
+    enabled: ${TASKS_ENABLED:true}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: tls
+  ssl:
+    bundle:
+      pem:
+        api:
+          reload-on-update: true
+          keystore:
+            certificate: ${TLS_CERTIFICATE:file:/tls/fullchain.pem}
+            private-key: ${TLS_PRIVATE_KEY:file:/tls/privkey.pem}
+server:
+  port: ${PORT:8443}
+  ssl:
+    bundle: api
+  http2:
+    enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: worker
+  main:
+    web-application-type: none
+cocinavecina:
+  tasks:
+    enabled: true

@@ -1,0 +1,73 @@
+name: cocinavecina
+
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_DB: cocinavecina
+      POSTGRES_USER: cocinavecina
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cocinavecina}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cocinavecina -d cocinavecina"]
+      interval: 5s
+      retries: 10
+    mem_limit: 768m
+    restart: unless-stopped
+
+  api:
+    profiles: ["full"]
+    build: ../backend
+    image: cocinavecina-api:local
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: tls
+      DB_URL: jdbc:postgresql://db:5432/cocinavecina
+      TASKS_ENABLED: "false"
+      PHOTOS_DIR: /data/photos
+    ports:
+      - "443:8443"
+    volumes:
+      - photos:/data/photos
+      - ./tls:/tls:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 512m
+    restart: unless-stopped
+
+  worker:
+    profiles: ["full"]
+    build: ../backend
+    image: cocinavecina-api:local
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: worker
+      DB_URL: jdbc:postgresql://db:5432/cocinavecina
+      PHOTOS_DIR: /data/photos
+    volumes:
+      - photos:/data/photos
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 384m
+    restart: unless-stopped
+
+  photos:
+    profiles: ["full"]
+    image: nginx:1.27-alpine
+    ports:
+      - "8443:8443"
+    volumes:
+      - photos:/usr/share/nginx/html/photos:ro
+      - ./nginx/photos.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./tls:/etc/nginx/tls:ro
+    mem_limit: 64m
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  photos:

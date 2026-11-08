@@ -1,0 +1,1 @@
+-keep class cl.udec.cocinavecina.data.network.** { *; }

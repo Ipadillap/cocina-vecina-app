@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="512" android:viewportHeight="512">
+    <path android:fillColor="#F2711C" android:pathData="M96,0 H416 A96,96 0 0 1 512,96 V416 A96,96 0 0 1 416,512 H96 A96,96 0 0 1 0,416 V96 A96,96 0 0 1 96,0 Z" />
+    <group android:translateX="25.6" android:translateY="45.6" android:scaleX="0.9" android:scaleY="0.9">
+        <path android:strokeColor="#FFF3E0" android:strokeWidth="14" android:strokeLineCap="round"
+            android:pathData="M314,146 c-16,-16 16,-28 0,-46" />
+        <path android:strokeColor="#FFF3E0" android:strokeWidth="12" android:strokeLineCap="round"
+            android:pathData="M342,150 c-12,-12 12,-22 0,-36" />
+        <path android:fillColor="#C62F1A" android:pathData="M312,150 H334 A6,6 0 0 1 340,156 V208 A6,6 0 0 1 334,214 H312 A6,6 0 0 1 306,208 V156 A6,6 0 0 1 312,150 Z" />
+        <path android:fillColor="#C62F1A" android:strokeColor="#C62F1A" android:strokeWidth="20"
+            android:strokeLineJoin="round" android:pathData="M256,120 L408,236 L104,236 Z" />
+        <path android:fillColor="#C62F1A" android:pathData="M131,228 H381 A15,15 0 0 1 396,243 V243 A15,15 0 0 1 381,258 H131 A15,15 0 0 1 116,243 V243 A15,15 0 0 1 131,228 Z" />
+        <path android:fillColor="#FFF3E0" android:pathData="M117,272 H137 A13,13 0 0 1 150,285 V285 A13,13 0 0 1 137,298 H117 A13,13 0 0 1 104,285 V285 A13,13 0 0 1 117,272 Z" />
+        <path android:fillColor="#FFF3E0" android:pathData="M375,272 H395 A13,13 0 0 1 408,285 V285 A13,13 0 0 1 395,298 H375 A13,13 0 0 1 362,285 V285 A13,13 0 0 1 375,272 Z" />
+        <path android:fillColor="#FFF3E0" android:pathData="M140,258 H372 V318 Q372,372 318,372 H194 Q140,372 140,318 Z" />
+        <path android:fillColor="#C62F1A"
+            android:pathData="M256,340 C226,320 220,292 239,285 C249,281 255,288 256,293 C257,288 263,281 273,285 C292,292 286,320 256,340 Z" />
+    </group>
+</vector>
