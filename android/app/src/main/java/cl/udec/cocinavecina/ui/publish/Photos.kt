@@ -11,20 +11,25 @@ object Photos {
     private const val MAX_SIDE = 1080
     private const val MAX_BYTES = 300_000
 
-    fun compress(context: Context, uri: Uri): ByteArray {
+    fun compress(
+        context: Context,
+        uri: Uri,
+    ): ByteArray {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(uri).use { BitmapFactory.decodeStream(it, null, bounds) }
         var sampleSize = 1
         while (max(bounds.outWidth, bounds.outHeight) / (sampleSize * 2) >= MAX_SIDE) sampleSize *= 2
-        val original = context.contentResolver.openInputStream(uri).use {
-            BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sampleSize })
-        } ?: error("No se pudo leer la imagen")
+        val original =
+            context.contentResolver.openInputStream(uri).use {
+                BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sampleSize })
+            } ?: error("No se pudo leer la imagen")
         val scale = MAX_SIDE.toFloat() / max(original.width, original.height)
-        val scaled = if (scale < 1f) {
-            Bitmap.createScaledBitmap(original, (original.width * scale).toInt(), (original.height * scale).toInt(), true)
-        } else {
-            original
-        }
+        val scaled =
+            if (scale < 1f) {
+                Bitmap.createScaledBitmap(original, (original.width * scale).toInt(), (original.height * scale).toInt(), true)
+            } else {
+                original
+            }
         var quality = 85
         var bytes: ByteArray
         do {

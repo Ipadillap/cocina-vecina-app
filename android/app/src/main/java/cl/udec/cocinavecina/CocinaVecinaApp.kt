@@ -15,7 +15,8 @@ class CocinaVecinaApp : Application() {
         container = AppContainer(this)
         MapLibre.getInstance(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(NOTIFICATION_CHANNEL, getString(R.string.notification_channel), NotificationManager.IMPORTANCE_DEFAULT)
+            val channel =
+                NotificationChannel(NOTIFICATION_CHANNEL, getString(R.string.notification_channel), NotificationManager.IMPORTANCE_DEFAULT)
             getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         }
     }

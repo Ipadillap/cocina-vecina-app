@@ -36,10 +36,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.udec.cocinavecina.AppContainer
 import cl.udec.cocinavecina.data.network.OrderView
 import cl.udec.cocinavecina.data.session.SessionState
-import cl.udec.cocinavecina.ui.common.PrimaryButton
-import cl.udec.cocinavecina.ui.common.Loading
-import cl.udec.cocinavecina.ui.common.Format
 import cl.udec.cocinavecina.ui.common.ErrorMessage
+import cl.udec.cocinavecina.ui.common.Format
+import cl.udec.cocinavecina.ui.common.Loading
+import cl.udec.cocinavecina.ui.common.PrimaryButton
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
@@ -47,7 +47,11 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 private val TIMELINE = listOf("ACCEPTED", "READY_FOR_PICKUP", "DELIVERED")
 
 @Composable
-fun OrderScreen(container: AppContainer, session: SessionState.Active, orderId: Long) {
+fun OrderScreen(
+    container: AppContainer,
+    session: SessionState.Active,
+    orderId: Long,
+) {
     val vm: OrderViewModel = viewModel(key = "order$orderId") { OrderViewModel(container, orderId) }
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     val order = uiState.order ?: return Loading()
@@ -78,7 +82,11 @@ private fun StatusTimeline(p: OrderView) {
 }
 
 @Composable
-private fun BuyerView(vm: OrderViewModel, uiState: OrderViewModel.UiState, p: OrderView) {
+private fun BuyerView(
+    vm: OrderViewModel,
+    uiState: OrderViewModel.UiState,
+    p: OrderView,
+) {
     val inProgress = p.status == "ACCEPTED" || p.status == "READY_FOR_PICKUP"
     LaunchedEffect(p.id, inProgress) { if (inProgress) vm.loadCode() }
     uiState.code?.takeIf { inProgress }?.let { code ->
@@ -106,7 +114,10 @@ private fun BuyerView(vm: OrderViewModel, uiState: OrderViewModel.UiState, p: Or
 }
 
 @Composable
-private fun SellerView(vm: OrderViewModel, p: OrderView) {
+private fun SellerView(
+    vm: OrderViewModel,
+    p: OrderView,
+) {
     val context = LocalContext.current
     var code by remember { mutableStateOf("") }
     when (p.status) {

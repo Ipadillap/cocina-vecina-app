@@ -28,14 +28,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.network.SignUpRequest
-import cl.udec.cocinavecina.data.network.LoginRequest
-import cl.udec.cocinavecina.ui.common.PrimaryButton
 import cl.udec.cocinavecina.ui.common.ErrorMessage
+import cl.udec.cocinavecina.ui.common.PrimaryButton
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(repository: Repository) {
-    var signingUp by remember { mutableStateOf(false) }
+fun SignUpScreen(
+    repository: Repository,
+    onBackToLogin: () -> Unit,
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
@@ -53,63 +54,62 @@ fun LoginScreen(repository: Repository) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text("CocinaVecina", style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.primary)
-        Text(if (signingUp) "Crear cuenta" else "Ingresar", style = MaterialTheme.typography.titleLarge)
+        Text("Crear cuenta", style = MaterialTheme.typography.titleLarge)
         OutlinedTextField(
-            email, { email = it }, label = { Text("Correo") }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email), modifier = Modifier.fillMaxWidth(),
+            email,
+            { email = it },
+            label = { Text("Correo") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
-            password, { password = it }, label = { Text("Contraseña") }, singleLine = true,
-            visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth(),
+            password,
+            { password = it },
+            label = { Text("Contraseña") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(),
         )
-        if (signingUp) {
-            OutlinedTextField(name, { name = it }, label = { Text("Nombre visible") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(
-                phone, { phone = it }, label = { Text("Teléfono (se muestra solo tras un acuerdo)") }, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), modifier = Modifier.fillMaxWidth(),
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(role == "BUYER", { role = "BUYER" }, label = { Text("Quiero comprar") })
-                FilterChip(role == "SELLER", { role = "SELLER" }, label = { Text("También quiero vender") })
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(adult, { adult = it })
-                Text("Declaro tener 18 años o más")
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(terms, { terms = it })
-                Text("Acepto los términos y la política de privacidad")
-            }
+        OutlinedTextField(name, { name = it }, label = { Text("Nombre visible") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            phone,
+            { phone = it },
+            label = { Text("Teléfono (se muestra solo tras un acuerdo)") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(role == "BUYER", { role = "BUYER" }, label = { Text("Quiero comprar") })
+            FilterChip(role == "SELLER", { role = "SELLER" }, label = { Text("También quiero vender") })
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(adult, { adult = it })
+            Text("Declaro tener 18 años o más")
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(terms, { terms = it })
+            Text("Acepto los términos y la política de privacidad")
         }
         ErrorMessage(error)
         notice?.let { Text(it, color = MaterialTheme.colorScheme.secondary) }
         PrimaryButton(
-            text = if (signingUp) "Crear cuenta" else "Ingresar",
+            text = "Crear cuenta",
             enabled = !busy,
             onClick = {
                 busy = true
                 error = null
                 scope.launch {
-                    if (signingUp) {
-                        repository.call {
-                            register(
-                                SignUpRequest(email.trim(), name.trim(), password, phone.ifBlank { null }, role, adult, terms),
-                            )
-                        }.onSuccess {
-                            notice = it.message
-                            signingUp = false
-                        }.onFailure { error = it.message }
-                    } else {
-                        repository.call { login(LoginRequest(email.trim(), password)) }
-                            .onSuccess { repository.session.save(it) }
-                            .onFailure { error = it.message }
-                    }
+                    repository.call {
+                        register(
+                            SignUpRequest(email.trim(), name.trim(), password, phone.ifBlank { null }, role, adult, terms),
+                        )
+                    }.onSuccess { notice = it.message }.onFailure { error = it.message }
                     busy = false
                 }
             },
         )
-        TextButton(onClick = { signingUp = !signingUp }) {
-            Text(if (signingUp) "Ya tengo cuenta" else "Crear una cuenta nueva")
-        }
+        TextButton(onClick = onBackToLogin) { Text("Ya tengo cuenta") }
     }
 }

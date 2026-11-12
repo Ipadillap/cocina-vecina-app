@@ -30,12 +30,16 @@ import cl.udec.cocinavecina.AppContainer
 import cl.udec.cocinavecina.data.network.Price
 import cl.udec.cocinavecina.data.network.PurchaseRequestView
 import cl.udec.cocinavecina.data.session.SessionState
-import cl.udec.cocinavecina.ui.common.Format
 import cl.udec.cocinavecina.ui.common.ErrorMessage
+import cl.udec.cocinavecina.ui.common.Format
 import kotlinx.coroutines.launch
 
 @Composable
-fun RequestsScreen(container: AppContainer, session: SessionState.Active, onOpenOrder: (Long) -> Unit) {
+fun RequestsScreen(
+    container: AppContainer,
+    session: SessionState.Active,
+    onOpenOrder: (Long) -> Unit,
+) {
     val repository = container.repository
     var received by remember { mutableStateOf<List<PurchaseRequestView>>(emptyList()) }
     var own by remember { mutableStateOf<List<PurchaseRequestView>>(emptyList()) }

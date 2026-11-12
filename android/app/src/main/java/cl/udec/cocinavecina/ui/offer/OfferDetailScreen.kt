@@ -33,18 +33,22 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import cl.udec.cocinavecina.data.Repository
-import coil.compose.AsyncImage
 import cl.udec.cocinavecina.data.network.NewPurchaseRequest
 import cl.udec.cocinavecina.data.network.NewReport
 import cl.udec.cocinavecina.data.network.OfferView
-import cl.udec.cocinavecina.ui.common.PrimaryButton
-import cl.udec.cocinavecina.ui.common.Loading
-import cl.udec.cocinavecina.ui.common.Format
 import cl.udec.cocinavecina.ui.common.ErrorMessage
+import cl.udec.cocinavecina.ui.common.Format
+import cl.udec.cocinavecina.ui.common.Loading
+import cl.udec.cocinavecina.ui.common.PrimaryButton
+import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 
 @Composable
-fun OfferDetailScreen(repository: Repository, offerId: Long, onSubmitted: () -> Unit) {
+fun OfferDetailScreen(
+    repository: Repository,
+    offerId: Long,
+    onSubmitted: () -> Unit,
+) {
     var offer by remember { mutableStateOf<OfferView?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     var portions by remember { mutableIntStateOf(1) }

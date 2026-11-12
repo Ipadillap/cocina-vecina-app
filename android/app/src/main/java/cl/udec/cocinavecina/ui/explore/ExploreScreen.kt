@@ -31,20 +31,24 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.network.NearbyOffer
 import cl.udec.cocinavecina.location.Locator
-import cl.udec.cocinavecina.ui.common.Format
-import cl.udec.cocinavecina.ui.common.ErrorMessage
 import cl.udec.cocinavecina.ui.common.EmptyState
+import cl.udec.cocinavecina.ui.common.ErrorMessage
+import cl.udec.cocinavecina.ui.common.Format
 
 private val RADII = listOf(500 to "0,5 km", 1500 to "1,5 km", 3000 to "3 km", 5000 to "5 km")
 
 @Composable
-fun ExploreScreen(repository: Repository, onOpenOffer: (Long) -> Unit) {
+fun ExploreScreen(
+    repository: Repository,
+    onOpenOffer: (Long) -> Unit,
+) {
     val vm: ExploreViewModel = viewModel { ExploreViewModel(repository) }
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val requestPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        vm.setCenter(Locator.lastKnown(context))
-    }
+    val requestPermission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+            vm.setCenter(Locator.lastKnown(context))
+        }
     LaunchedEffect(Unit) {
         if (Locator.hasPermission(context)) {
             vm.setCenter(Locator.lastKnown(context))
@@ -75,7 +79,10 @@ fun ExploreScreen(repository: Repository, onOpenOffer: (Long) -> Unit) {
 }
 
 @Composable
-private fun OfferList(offers: List<NearbyOffer>, onOpen: (Long) -> Unit) {
+private fun OfferList(
+    offers: List<NearbyOffer>,
+    onOpen: (Long) -> Unit,
+) {
     LazyColumn(contentPadding = PaddingValues(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(offers, key = { it.id }) { o ->
             Card(Modifier.fillMaxWidth().clickable { onOpen(o.id) }) {

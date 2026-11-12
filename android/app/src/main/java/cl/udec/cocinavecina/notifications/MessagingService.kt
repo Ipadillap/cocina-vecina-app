@@ -27,15 +27,17 @@ class MessagingService : FirebaseMessagingService() {
 
     @SuppressLint("MissingPermission")
     override fun onMessageReceived(message: RemoteMessage) {
-        val allowed = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        val allowed =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         if (!allowed) return
-        val notice = NotificationCompat.Builder(this, CocinaVecinaApp.NOTIFICATION_CHANNEL)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(message.notification?.title ?: getString(R.string.app_name))
-            .setContentText(message.notification?.body ?: message.data["body"].orEmpty())
-            .setAutoCancel(true)
-            .build()
+        val notice =
+            NotificationCompat.Builder(this, CocinaVecinaApp.NOTIFICATION_CHANNEL)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle(message.notification?.title ?: getString(R.string.app_name))
+                .setContentText(message.notification?.body ?: message.data["body"].orEmpty())
+                .setAutoCancel(true)
+                .build()
         NotificationManagerCompat.from(this).notify(message.messageId.hashCode(), notice)
     }
 }

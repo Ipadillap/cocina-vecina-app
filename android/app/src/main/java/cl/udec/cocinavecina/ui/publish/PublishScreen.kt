@@ -40,20 +40,23 @@ import cl.udec.cocinavecina.data.network.NewOffer
 import cl.udec.cocinavecina.data.network.NewPickupPoint
 import cl.udec.cocinavecina.data.network.PickupPointView
 import cl.udec.cocinavecina.location.Locator
+import cl.udec.cocinavecina.ui.common.ErrorMessage
 import cl.udec.cocinavecina.ui.common.Format
 import cl.udec.cocinavecina.ui.common.PrimaryButton
-import cl.udec.cocinavecina.ui.common.ErrorMessage
-import java.time.Duration
-import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Duration
+import java.time.Instant
 
 private const val NONE_KNOWN = "NONE_KNOWN"
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PublishScreen(repository: Repository, onPublished: () -> Unit) {
+fun PublishScreen(
+    repository: Repository,
+    onPublished: () -> Unit,
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var pickupPoints by remember { mutableStateOf<List<PickupPointView>>(emptyList()) }
@@ -75,16 +78,20 @@ fun PublishScreen(repository: Repository, onPublished: () -> Unit) {
     var busy by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        repository.call { myPickupPoints() }.onSuccess { pickupPoints = it; pointId = it.firstOrNull()?.id }
-    }
-    val pickPhoto = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) {
-            scope.launch {
-                val bytes = withContext(Dispatchers.IO) { Photos.compress(context, uri) }
-                repository.uploadPhoto(bytes).onSuccess { photoKey = it }.onFailure { error = it.message }
-            }
+        repository.call { myPickupPoints() }.onSuccess {
+            pickupPoints = it
+            pointId = it.firstOrNull()?.id
         }
     }
+    val pickPhoto =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                scope.launch {
+                    val bytes = withContext(Dispatchers.IO) { Photos.compress(context, uri) }
+                    repository.uploadPhoto(bytes).onSuccess { photoKey = it }.onFailure { error = it.message }
+                }
+            }
+        }
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -94,8 +101,20 @@ fun PublishScreen(repository: Repository, onPublished: () -> Unit) {
 
         if (pickupPoints.isEmpty()) {
             Text("Punto de retiro (la dirección solo la verá quien acuerde la compra)")
-            OutlinedTextField(alias, { alias = it }, label = { Text("Nombre del punto") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(address, { address = it }, label = { Text("Dirección") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                alias,
+                { alias = it },
+                label = { Text("Nombre del punto") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                address,
+                { address = it },
+                label = { Text("Dirección") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(useLocation, { useLocation = it })
                 Text("Usar mi ubicación actual en vez de buscar la dirección")
@@ -109,7 +128,9 @@ fun PublishScreen(repository: Repository, onPublished: () -> Unit) {
         OutlinedButton(onClick = { pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) {
             Text(if (photoKey == null) "Agregar foto" else "Foto lista ✓")
         }
-        OutlinedTextField(title, { title = it.take(80) }, label = { Text("¿Qué cocinaste?") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(title, {
+            title = it.take(80)
+        }, label = { Text("¿Qué cocinaste?") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Format.CATEGORIES.forEach { (key, text) -> FilterChip(category == key, { category = key }, label = { Text(text) }) }
         }
@@ -121,12 +142,20 @@ fun PublishScreen(repository: Repository, onPublished: () -> Unit) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
-                basePrice, { basePrice = it.filter(Char::isDigit) }, label = { Text("Precio") }, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f),
+                basePrice,
+                { basePrice = it.filter(Char::isDigit) },
+                label = { Text("Precio") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.weight(1f),
             )
             OutlinedTextField(
-                minPrice, { minPrice = it.filter(Char::isDigit) }, label = { Text("Mínimo aceptado") }, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.weight(1f),
+                minPrice,
+                { minPrice = it.filter(Char::isDigit) },
+                label = { Text("Mínimo aceptado") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.weight(1f),
             )
         }
         Text("Alérgenos (obligatorio)")
@@ -152,7 +181,10 @@ fun PublishScreen(repository: Repository, onPublished: () -> Unit) {
         if (containsExcluded) ErrorMessage("Estas preparaciones no se pueden publicar (RB-7).")
         Text("Preparado hace")
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            listOf(0, 30, 60, 90).forEach { m -> FilterChip(preparedMinutesAgo == m, { preparedMinutesAgo = m }, label = { Text("$m min") }) }
+            listOf(0, 30, 60, 90).forEach {
+                    m ->
+                FilterChip(preparedMinutesAgo == m, { preparedMinutesAgo = m }, label = { Text("$m min") })
+            }
         }
         Text("Disponible por")
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -168,28 +200,30 @@ fun PublishScreen(repository: Repository, onPublished: () -> Unit) {
                 busy = true
                 error = null
                 scope.launch {
-                    val id = pointId ?: run {
-                        val here = if (useLocation) Locator.lastKnown(context) else null
-                        repository.call {
-                            createPickupPoint(NewPickupPoint(alias, address.ifBlank { alias }, null, here?.lat, here?.lon))
-                        }.onFailure { error = it.message }.getOrNull()?.id
-                    }
+                    val id =
+                        pointId ?: run {
+                            val here = if (useLocation) Locator.lastKnown(context) else null
+                            repository.call {
+                                createPickupPoint(NewPickupPoint(alias, address.ifBlank { alias }, null, here?.lat, here?.lon))
+                            }.onFailure { error = it.message }.getOrNull()?.id
+                        }
                     if (id != null) {
                         val now = Instant.now()
-                        val newOffer = NewOffer(
-                            pickupPointId = id,
-                            title = title.trim(),
-                            description = null,
-                            category = category,
-                            photoKey = photoKey,
-                            basePrice = basePrice.toIntOrNull() ?: 0,
-                            minPrice = minPrice.toIntOrNull() ?: 0,
-                            portions = portions,
-                            allergens = allergens.toList(),
-                            excludedIngredients = emptyList(),
-                            preparedAt = now.minus(Duration.ofMinutes(preparedMinutesAgo.toLong())).toString(),
-                            expiresAt = now.plus(Duration.ofMinutes(durationMinutes.toLong())).toString(),
-                        )
+                        val newOffer =
+                            NewOffer(
+                                pickupPointId = id,
+                                title = title.trim(),
+                                description = null,
+                                category = category,
+                                photoKey = photoKey,
+                                basePrice = basePrice.toIntOrNull() ?: 0,
+                                minPrice = minPrice.toIntOrNull() ?: 0,
+                                portions = portions,
+                                allergens = allergens.toList(),
+                                excludedIngredients = emptyList(),
+                                preparedAt = now.minus(Duration.ofMinutes(preparedMinutesAgo.toLong())).toString(),
+                                expiresAt = now.plus(Duration.ofMinutes(durationMinutes.toLong())).toString(),
+                            )
                         repository.call { publish(newOffer) }.onSuccess { onPublished() }.onFailure { error = it.message }
                     }
                     busy = false

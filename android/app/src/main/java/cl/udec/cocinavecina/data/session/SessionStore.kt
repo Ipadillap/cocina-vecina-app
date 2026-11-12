@@ -28,6 +28,7 @@ class SessionStore(private val context: Context) {
         val TOKEN = stringPreferencesKey("token")
         val USER = longPreferencesKey("user")
         val ROLE = stringPreferencesKey("role")
+
         fun code(orderId: Long) = stringPreferencesKey("code_$orderId")
     }
 
@@ -35,15 +36,16 @@ class SessionStore(private val context: Context) {
     var currentToken: String? = null
         private set
 
-    val sessionState: Flow<SessionState> = context.sessionDataStore.data.map { p ->
-        val token = p[Keys.TOKEN]
-        currentToken = token
-        if (token == null) {
-            SessionState.Anonymous
-        } else {
-            SessionState.Active(p[Keys.USER] ?: 0L, p[Keys.ROLE] ?: "BUYER")
+    val sessionState: Flow<SessionState> =
+        context.sessionDataStore.data.map { p ->
+            val token = p[Keys.TOKEN]
+            currentToken = token
+            if (token == null) {
+                SessionState.Anonymous
+            } else {
+                SessionState.Active(p[Keys.USER] ?: 0L, p[Keys.ROLE] ?: "BUYER")
+            }
         }
-    }
 
     suspend fun load() {
         currentToken = context.sessionDataStore.data.first()[Keys.TOKEN]
@@ -63,7 +65,10 @@ class SessionStore(private val context: Context) {
         currentToken = null
     }
 
-    suspend fun saveCode(orderId: Long, code: String) {
+    suspend fun saveCode(
+        orderId: Long,
+        code: String,
+    ) {
         context.sessionDataStore.edit { it[Keys.code(orderId)] = code }
     }
 
