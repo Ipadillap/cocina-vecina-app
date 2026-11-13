@@ -34,12 +34,14 @@ import cl.udec.cocinavecina.ui.common.Loading
 import cl.udec.cocinavecina.ui.explore.ExploreRoute
 import cl.udec.cocinavecina.ui.login.LoginRoute
 import cl.udec.cocinavecina.ui.moderation.ModerationScreen
-import cl.udec.cocinavecina.ui.offer.OfferDetailScreen
+import cl.udec.cocinavecina.ui.offer.OfferDetailRoute
 import cl.udec.cocinavecina.ui.orders.OrderScreen
 import cl.udec.cocinavecina.ui.orders.OrdersScreen
 import cl.udec.cocinavecina.ui.publish.PublishScreen
 import cl.udec.cocinavecina.ui.requests.RequestsScreen
 import cl.udec.cocinavecina.ui.signup.SignUpRoute
+
+private const val NO_DISTANCE = -1L
 
 private data class Destination(val route: String, val title: String, val icon: ImageVector)
 
@@ -120,14 +122,29 @@ private fun MainScaffold(
     ) { padding ->
         NavHost(nav, startDestination = "explore", modifier = Modifier.padding(padding)) {
             composable("explore") {
-                ExploreRoute(container.repository, onOfferClick = { nav.navigate("offer/$it") })
+                ExploreRoute(
+                    repository = container.repository,
+                    onOfferClick = { offerId, distanceMeters -> nav.navigate("offer/$offerId?distance=${distanceMeters ?: NO_DISTANCE}") },
+                )
             }
-            composable("offer/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-                OfferDetailScreen(
+            composable(
+                "offer/{id}?distance={distance}",
+                arguments =
+                    listOf(
+                        navArgument("id") { type = NavType.LongType },
+                        navArgument("distance") {
+                            type = NavType.LongType
+                            defaultValue = NO_DISTANCE
+                        },
+                    ),
+            ) { entry ->
+                OfferDetailRoute(
                     repository = container.repository,
                     offerId = entry.arguments?.getLong("id") ?: 0L,
-                    onSubmitted = { nav.navigate("requests") },
+                    distanceMeters = entry.arguments?.getLong("distance")?.takeIf { it != NO_DISTANCE },
                     onBack = { nav.popBackStack() },
+                    onProposePriceClick = { _, _ -> },
+                    onPurchaseRequested = { nav.navigate("requests") },
                 )
             }
             composable("publish") {

@@ -17,7 +17,7 @@ import cl.udec.cocinavecina.location.Locator
 @Composable
 fun ExploreRoute(
     repository: Repository,
-    onOfferClick: (Long) -> Unit,
+    onOfferClick: (offerId: Long, distanceMeters: Long?) -> Unit,
 ) {
     val viewModel: ExploreViewModel =
         viewModel(
@@ -61,6 +61,6 @@ fun ExploreRoute(
         onCategorySelect = viewModel::onCategorySelect,
         onViewModeChange = viewModel::onViewModeChange,
         onRetry = viewModel::onRetry,
-        onOfferClick = onOfferClick,
+        onOfferClick = { offerId -> onOfferClick(offerId, state.offers.firstOrNull { it.id == offerId }?.distanceMeters) },
     )
 }
