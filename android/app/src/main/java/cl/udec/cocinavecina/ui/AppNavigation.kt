@@ -44,7 +44,7 @@ import cl.udec.cocinavecina.ui.moderation.ModerationScreen
 import cl.udec.cocinavecina.ui.offer.OfferDetailRoute
 import cl.udec.cocinavecina.ui.offer.ProposalTarget
 import cl.udec.cocinavecina.ui.offer.ProposePriceRoute
-import cl.udec.cocinavecina.ui.orders.OrderScreen
+import cl.udec.cocinavecina.ui.orders.OrderDetailRoute
 import cl.udec.cocinavecina.ui.orders.OrdersScreen
 import cl.udec.cocinavecina.ui.publish.PublishScreen
 import cl.udec.cocinavecina.ui.requests.RequestTrackingRoute
@@ -192,11 +192,7 @@ private fun MainScaffold(
                     requestId = requestId,
                     onBack = { nav.popBackStack() },
                     onProposeAgain = { nav.navigate("request/$it/proposal") },
-                    onOpenOrder = { orderId ->
-                        nav.navigate("order/$orderId") {
-                            popUpTo("request/{id}") { inclusive = true }
-                        }
-                    },
+                    onOpenOrder = { orderId -> nav.openOrder(orderId) },
                 )
             }
             composable("request/{id}/proposal", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
@@ -217,7 +213,7 @@ private fun MainScaffold(
                     RequestsScreen(
                         container = container,
                         session = session,
-                        onOpenOrder = { nav.navigate("order/$it") },
+                        onOpenOrder = { nav.openOrder(it) },
                         onOpenRequest = { nav.navigate("request/$it") },
                     )
                 }
@@ -228,9 +224,10 @@ private fun MainScaffold(
                 }
             }
             composable("order/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-                OrderScreen(
-                    container = container,
-                    session = session,
+                OrderDetailRoute(
+                    repository = container.repository,
+                    events = container.events.events,
+                    userId = session.userId,
                     orderId = entry.arguments?.getLong("id") ?: 0L,
                     onBack = { nav.popBackStack() },
                 )
@@ -273,6 +270,11 @@ private fun NavHostController.openTab(route: String) {
 private fun NavHostController.openRequestTracking(requestId: Long) {
     finishFlowInTab("requests")
     navigate("request/$requestId")
+}
+
+private fun NavHostController.openOrder(orderId: Long) {
+    finishFlowInTab("orders")
+    navigate("order/$orderId")
 }
 
 private fun NavHostController.finishFlowInTab(route: String) {
