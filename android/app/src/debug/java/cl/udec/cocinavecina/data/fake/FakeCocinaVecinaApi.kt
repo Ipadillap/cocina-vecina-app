@@ -372,6 +372,11 @@ class FakeCocinaVecinaApi(
     override suspend fun pickupDetails(id: Long): PickupDetailsView =
         respond {
             val order = findOrder(id)
+            val deliveredAt = order.view.deliveredAt?.let(Instant::parse)
+            val unlocked =
+                order.view.status in listOf("ACCEPTED", "READY_FOR_PICKUP") ||
+                    (deliveredAt != null && Instant.now().isBefore(deliveredAt.plus(1, ChronoUnit.HOURS)))
+            if (!unlocked) fail(403, "Los datos de retiro ya no están disponibles.")
             val point = pointOf(findOffer(order.view.offerId))
             val seller = users.first { it.id == order.view.sellerId }
             PickupDetailsView(point.address, point.instructions, point.latitude, point.longitude, seller.phone)

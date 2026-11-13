@@ -71,10 +71,9 @@ object Format {
     fun timeLeft(
         isoUtc: String,
         now: Instant = Instant.now(),
-    ): String {
-        val min = minutesLeft(isoUtc, now)
-        return if (min >= 60) "quedan ${min / 60} h ${min % 60} min" else "quedan $min min"
-    }
+    ): String = "quedan ${duration(minutesLeft(isoUtc, now))}"
+
+    fun duration(minutes: Long): String = if (minutes >= 60) "${minutes / 60} h ${minutes % 60} min" else "$minutes min"
 
     fun clockTime(
         isoUtc: String,

@@ -132,7 +132,7 @@ private fun TopRow(
         if (state.request != null && state.isOpen && !state.isExpired) {
             LiveBadge()
             Text(
-                "quedan ${formatMinutes(state.minutesLeft)}",
+                "quedan ${Format.duration(state.minutesLeft)}",
                 modifier = Modifier.padding(start = 10.dp),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -473,8 +473,6 @@ private fun RejectDialog(
 }
 
 private const val URGENT_MINUTES = 60L
-
-private fun formatMinutes(minutes: Long): String = if (minutes >= 60) "${minutes / 60} h ${minutes % 60} min" else "$minutes min"
 
 private fun previewState(): RequestTrackingUiState {
     val now = Instant.now()
