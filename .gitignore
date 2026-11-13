@@ -22,3 +22,5 @@ infra/.env
 infra/backups/
 infra/tls/
 backend/photos/
+
+android/NOTAS_FAKE_API.md
