@@ -54,7 +54,13 @@ class LoginViewModel(
                 } catch (e: Exception) {
                     e
                 }
-            mutableState.update { it.copy(isLoading = false, formError = failure?.toFormError()) }
+            mutableState.update {
+                if (failure == null) {
+                    it.copy(isLoading = false, password = "", formError = null)
+                } else {
+                    it.copy(isLoading = false, formError = failure.toFormError())
+                }
+            }
         }
     }
 

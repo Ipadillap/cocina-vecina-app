@@ -47,6 +47,10 @@ class SignUpViewModel(
         mutableState.update { it.copy(notificationsEnabled = value) }
     }
 
+    fun reset() {
+        mutableState.value = SignUpUiState()
+    }
+
     fun onSignUpClick() {
         val current = mutableState.value
         if (current.isLoading || current.successMessage != null) return

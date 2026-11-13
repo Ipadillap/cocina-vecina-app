@@ -113,6 +113,7 @@ class LoginViewModelTest {
         assertEquals(listOf(token), saved)
         assertFalse(vm.uiState.value.isLoading)
         assertNull(vm.uiState.value.formError)
+        assertEquals("", vm.uiState.value.password)
     }
 
     @Test

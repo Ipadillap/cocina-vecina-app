@@ -61,6 +61,9 @@ fun SignUpRoute(
         onSignUpClick = viewModel::onSignUpClick,
         onTermsClick = onTermsClick,
         onPrivacyClick = onPrivacyClick,
-        onLoginClick = onLoginClick,
+        onLoginClick = {
+            viewModel.reset()
+            onLoginClick()
+        },
     )
 }

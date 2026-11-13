@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ import cl.udec.cocinavecina.ui.publish.PublishScreen
 import cl.udec.cocinavecina.ui.requests.RequestTrackingRoute
 import cl.udec.cocinavecina.ui.requests.RequestsScreen
 import cl.udec.cocinavecina.ui.signup.SignUpRoute
+import kotlinx.coroutines.launch
 
 private const val NO_DISTANCE = -1L
 private const val START_ROUTE = "explore"
@@ -90,6 +92,13 @@ private fun MainScaffold(
     session: SessionState.Active,
 ) {
     val nav = rememberNavController()
+    val scope = rememberCoroutineScope()
+    val logout: () -> Unit = {
+        scope.launch {
+            container.events.disconnect()
+            container.session.clear()
+        }
+    }
     val destinations =
         buildList {
             add(Destination("explore", "Explorar", Icons.Filled.Search))
@@ -130,6 +139,7 @@ private fun MainScaffold(
                 ExploreRoute(
                     repository = container.repository,
                     onOfferClick = { offerId, distanceMeters -> nav.navigate("offer/$offerId?distance=${distanceMeters ?: NO_DISTANCE}") },
+                    onLogoutClick = logout,
                 )
             }
             composable(
