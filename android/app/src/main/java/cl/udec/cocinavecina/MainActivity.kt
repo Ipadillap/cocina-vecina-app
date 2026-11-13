@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import cl.udec.cocinavecina.ui.AppNavigation
+import cl.udec.cocinavecina.ui.publish.PublishScreen
 import cl.udec.cocinavecina.ui.theme.CocinaVecinaTheme
 
 class MainActivity : ComponentActivity() {
@@ -14,7 +15,8 @@ class MainActivity : ComponentActivity() {
         val container = (application as CocinaVecinaApp).container
         setContent {
             CocinaVecinaTheme {
-                AppNavigation(container)
+                //AppNavigation(container)
+                PublishScreen(container.repository, {}, onExit = {})
             }
         }
     }
