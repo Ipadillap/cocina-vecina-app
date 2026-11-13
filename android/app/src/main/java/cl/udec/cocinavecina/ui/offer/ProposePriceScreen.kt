@@ -180,7 +180,11 @@ private fun PriceCard(
                 maxPrice = offer.basePrice,
                 minLabel = "Mínimo de ${offer.seller}",
                 maxLabel = "Precio publicado",
-                marks = listOfNotNull(state.price?.let { PriceMark(it, "tú") }),
+                marks =
+                    listOfNotNull(
+                        state.sellerCounterPrice?.let { PriceMark(it, offer.seller.substringBefore(' '), emphasized = false) },
+                        state.price?.let { PriceMark(it, "tú") },
+                    ),
                 modifier = Modifier.padding(top = 4.dp),
             )
         }
@@ -237,6 +241,20 @@ private fun PortionsCard(
     state: ProposePriceUiState,
     onPortionsChange: (Int) -> Unit,
 ) {
+    if (state.isCounterProposal) {
+        SectionCard {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    if (state.portions == 1) "1 porción" else "${state.portions} porciones",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text("Las porciones se mantienen durante el regateo.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        return
+    }
     SectionCard {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             PortionStepper(
@@ -323,13 +341,15 @@ private fun SubmitBar(
                     }
                 }
             }
-            TextButton(onClick = onBuyAtPublishedPriceClick, enabled = !state.isSubmitting) {
-                Text(
-                    "Mejor compro al precio publicado",
-                    fontSize = 14.sp,
-                    textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
+            if (!state.isCounterProposal) {
+                TextButton(onClick = onBuyAtPublishedPriceClick, enabled = !state.isSubmitting) {
+                    Text(
+                        "Mejor compro al precio publicado",
+                        fontSize = 14.sp,
+                        textDecoration = TextDecoration.Underline,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
         }
     }

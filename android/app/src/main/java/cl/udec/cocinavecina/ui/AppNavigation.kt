@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -45,6 +46,7 @@ import cl.udec.cocinavecina.ui.offer.ProposePriceRoute
 import cl.udec.cocinavecina.ui.orders.OrderScreen
 import cl.udec.cocinavecina.ui.orders.OrdersScreen
 import cl.udec.cocinavecina.ui.publish.PublishScreen
+import cl.udec.cocinavecina.ui.requests.RequestTrackingRoute
 import cl.udec.cocinavecina.ui.requests.RequestsScreen
 import cl.udec.cocinavecina.ui.signup.SignUpRoute
 
@@ -98,12 +100,10 @@ private fun MainScaffold(
         }
     LaunchedEffect(session.userId) { container.events.connect() }
     val currentEntry by nav.currentBackStackEntryAsState()
-    var selectedTab by rememberSaveable { mutableStateOf(START_ROUTE) }
-    LaunchedEffect(currentEntry) {
-        currentEntry?.destination?.route?.let { route ->
-            if (destinations.any { it.route == route }) selectedTab = route
+    val selectedTab =
+        remember(currentEntry, destinations) {
+            destinations.firstOrNull { it.route != START_ROUTE && nav.hasInBackStack(it.route) }?.route ?: START_ROUTE
         }
-    }
 
     Scaffold(
         bottomBar = {
@@ -149,7 +149,7 @@ private fun MainScaffold(
                     distanceMeters = entry.arguments?.getLong("distance")?.takeIf { it != NO_DISTANCE },
                     onBack = { nav.popBackStack() },
                     onProposePriceClick = { offerId, portions -> nav.navigate("offer/$offerId/proposal?portions=$portions") },
-                    onPurchaseRequested = { nav.finishFlowInTab("requests") },
+                    onPurchaseRequested = { requestId -> nav.openRequestTracking(requestId) },
                 )
             }
             composable(
@@ -171,7 +171,30 @@ private fun MainScaffold(
                             initialPortions = entry.arguments?.getInt("portions") ?: 1,
                         ),
                     onBack = { nav.popBackStack() },
-                    onRequestCompleted = { nav.finishFlowInTab("requests") },
+                    onRequestCompleted = { requestId -> nav.openRequestTracking(requestId) },
+                )
+            }
+            composable("request/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                val requestId = entry.arguments?.getLong("id") ?: 0L
+                RequestTrackingRoute(
+                    repository = container.repository,
+                    events = container.events.events,
+                    requestId = requestId,
+                    onBack = { nav.popBackStack() },
+                    onProposeAgain = { nav.navigate("request/$it/proposal") },
+                    onOpenOrder = { orderId ->
+                        nav.navigate("order/$orderId") {
+                            popUpTo("request/{id}") { inclusive = true }
+                        }
+                    },
+                )
+            }
+            composable("request/{id}/proposal", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                ProposePriceRoute(
+                    repository = container.repository,
+                    target = ProposalTarget.ExistingRequest(entry.arguments?.getLong("id") ?: 0L),
+                    onBack = { nav.popBackStack() },
+                    onRequestCompleted = { nav.popBackStack() },
                 )
             }
             composable("publish") {
@@ -181,7 +204,12 @@ private fun MainScaffold(
             }
             composable("requests") {
                 TabRootScreen("Solicitudes", onBack = { nav.openTab(START_ROUTE) }) {
-                    RequestsScreen(container, session, onOpenOrder = { nav.navigate("order/$it") })
+                    RequestsScreen(
+                        container = container,
+                        session = session,
+                        onOpenOrder = { nav.navigate("order/$it") },
+                        onOpenRequest = { nav.navigate("request/$it") },
+                    )
                 }
             }
             composable("orders") {
@@ -218,6 +246,8 @@ private fun TabRootScreen(
     }
 }
 
+private fun NavHostController.hasInBackStack(route: String): Boolean = runCatching { getBackStackEntry(route) }.isSuccess
+
 private fun NavHostController.openTab(route: String) {
     if (route == START_ROUTE) {
         popBackStack(START_ROUTE, inclusive = false)
@@ -228,6 +258,11 @@ private fun NavHostController.openTab(route: String) {
         launchSingleTop = true
         restoreState = true
     }
+}
+
+private fun NavHostController.openRequestTracking(requestId: Long) {
+    finishFlowInTab("requests")
+    navigate("request/$requestId")
 }
 
 private fun NavHostController.finishFlowInTab(route: String) {

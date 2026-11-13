@@ -1,5 +1,6 @@
 package cl.udec.cocinavecina.ui.requests
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +40,7 @@ fun RequestsScreen(
     container: AppContainer,
     session: SessionState.Active,
     onOpenOrder: (Long) -> Unit,
+    onOpenRequest: (Long) -> Unit,
 ) {
     val repository = container.repository
     var received by remember { mutableStateOf<List<PurchaseRequestView>>(emptyList()) }
@@ -86,6 +88,7 @@ fun RequestsScreen(
                 onReject = { action { repository.call { reject(s.id) } } },
                 onCounteroffer = { p -> action { repository.call { propose(s.id, Price(p)) } } },
                 onOpenOrder = onOpenOrder,
+                onOpen = { onOpenRequest(s.id) },
             )
         }
     }
@@ -99,10 +102,11 @@ private fun RequestCard(
     onReject: () -> Unit,
     onCounteroffer: (Int) -> Unit,
     onOpenOrder: (Long) -> Unit,
+    onOpen: (() -> Unit)? = null,
 ) {
     val myTurn = s.turn == (if (isSeller) "SELLER" else "BUYER")
     var newPrice by remember(s.id) { mutableStateOf("") }
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth().then(if (onOpen != null) Modifier.clickable(onClick = onOpen) else Modifier)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("Oferta ${s.offerId} · ${s.portions} porción(es)", style = MaterialTheme.typography.titleSmall)
             Text("${Format.requestStatus(s.status)} · ${Format.pesos(s.currentPrice)} c/u · ronda ${s.rounds} de 3")
