@@ -52,7 +52,7 @@ También puedes crear una cuenta desde la pantalla de registro. En la API falsa 
 
 Todos los endpoints de `CocinaVecinaApi` tienen respuesta:
 
-- **Cuenta:** registro (con rol, mayoría de edad y términos) e inicio de sesión.
+- **Cuenta:** registro (con rol, mayoría de edad y términos), inicio de sesión, perfil (`GET /v1/account`), descarga de datos en JSON y eliminación de la cuenta (falla con 409 si hay pedidos en curso). Ojo: si eliminas una cuenta de prueba, vuelve al reiniciar la app.
 - **Ofertas:** búsqueda cercana, filtrada por radio y ordenada por distancia o tiempo restante (`DISTANCE` o `TIME_LEFT`); detalle; publicar; puntos de retiro.
 - **Solicitudes de compra:** enviar, contraofertar y proponer por turnos, aceptar y rechazar. Máximo de 3 rondas y precio entre el mínimo y el base.
 - **Pedidos:** generar código de retiro, marcar como listo, validar la entrega con el código, cancelar y ver los datos de retiro.

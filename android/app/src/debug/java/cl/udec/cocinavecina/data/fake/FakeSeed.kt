@@ -13,6 +13,7 @@ data class FakeUser(
     val role: String,
     val verified: Boolean,
     val phone: String? = null,
+    val termsAcceptedAt: Instant = Instant.parse("2026-10-08T15:00:00Z"),
 )
 
 data class FakeOffer(

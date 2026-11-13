@@ -29,6 +29,18 @@ data class TokenResponse(
 )
 
 @Serializable
+data class AccountView(
+    val id: Long,
+    val email: String,
+    val displayName: String,
+    val phone: String? = null,
+    val role: String,
+    val verified: Boolean,
+    val termsVersion: String? = null,
+    val termsAcceptedAt: String? = null,
+)
+
+@Serializable
 data class NearbyOffer(
     val id: Long,
     val title: String,

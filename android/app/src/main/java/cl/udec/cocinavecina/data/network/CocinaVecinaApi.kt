@@ -1,7 +1,9 @@
 package cl.udec.cocinavecina.data.network
 
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -18,6 +20,15 @@ interface CocinaVecinaApi {
     suspend fun register(
         @Body s: SignUpRequest,
     ): SignUpResponse
+
+    @GET("v1/account")
+    suspend fun account(): AccountView
+
+    @GET("v1/account/export")
+    suspend fun exportAccount(): ResponseBody
+
+    @DELETE("v1/account")
+    suspend fun deleteAccount(): Response<Unit>
 
     @GET("v1/offers/nearby")
     suspend fun nearby(

@@ -1,5 +1,6 @@
 package cl.udec.cocinavecina.data.fake
 
+import cl.udec.cocinavecina.data.network.AccountView
 import cl.udec.cocinavecina.data.network.Cancellation
 import cl.udec.cocinavecina.data.network.CocinaVecinaApi
 import cl.udec.cocinavecina.data.network.CodeValidation
@@ -30,7 +31,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
+import kotlinx.serialization.json.putJsonObject
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
@@ -138,6 +146,7 @@ class FakeCocinaVecinaApi(
                     role = s.role,
                     verified = true,
                     phone = s.phone,
+                    termsAcceptedAt = Instant.now(),
                 )
             users += user
             SignUpResponse(user.id, "Cuenta de prueba creada. En la API de prueba el correo queda verificado de inmediato.")
@@ -414,6 +423,105 @@ class FakeCocinaVecinaApi(
 
     override suspend fun registerDevice(r: DeviceRegistration): Response<Unit> = respond { Response.success(Unit) }
 
+    override suspend fun account(): AccountView =
+        respond {
+            val user = requireUser()
+            AccountView(
+                id = user.id,
+                email = user.email,
+                displayName = user.displayName,
+                phone = user.phone,
+                role = user.role,
+                verified = user.verified,
+                termsVersion = TERMS_VERSION,
+                termsAcceptedAt = user.termsAcceptedAt.toString(),
+            )
+        }
+
+    override suspend fun exportAccount(): ResponseBody =
+        respond {
+            val user = requireUser()
+            exportOf(user).toString().toResponseBody(JSON_MEDIA_TYPE)
+        }
+
+    override suspend fun deleteAccount(): Response<Unit> =
+        respond {
+            val user = requireUser()
+            val inProgress = orders.any { (it.view.buyerId == user.id || it.view.sellerId == user.id) && it.view.status in IN_PROGRESS_ORDER }
+            if (inProgress) fail(409, "Tienes pedidos en curso. Entrégalos o cancélalos antes de eliminar tu cuenta.")
+            offers.replaceAll { if (it.sellerId == user.id && it.status == "ACTIVE") it.copy(status = "WITHDRAWN") else it }
+            pickupPoints.removeAll { it.sellerId == user.id }
+            users.removeAll { it.id == user.id }
+            Response.success(Unit)
+        }
+
+    private fun exportOf(user: FakeUser): JsonObject =
+        buildJsonObject {
+            putJsonObject("account") {
+                put("id", user.id)
+                put("email", user.email)
+                put("displayName", user.displayName)
+                put("phone", user.phone)
+                put("role", user.role)
+                put("verified", user.verified)
+                put("termsVersion", TERMS_VERSION)
+                put("termsAcceptedAt", user.termsAcceptedAt.toString())
+            }
+            putJsonArray("pickupPoints") {
+                pickupPoints.filter { it.sellerId == user.id }.forEach { point ->
+                    add(
+                        buildJsonObject {
+                            put("id", point.id)
+                            put("alias", point.alias)
+                            put("address", point.address)
+                            put("instructions", point.instructions)
+                        },
+                    )
+                }
+            }
+            putJsonArray("offers") {
+                offers.filter { it.sellerId == user.id }.forEach { offer ->
+                    add(
+                        buildJsonObject {
+                            put("id", offer.id)
+                            put("title", offer.title)
+                            put("basePrice", offer.basePrice)
+                            put("status", offer.status)
+                            put("expiresAt", offer.expiresAt.toString())
+                        },
+                    )
+                }
+            }
+            putJsonArray("purchaseRequests") {
+                requests.filter { it.buyerId == user.id }.forEach { request ->
+                    add(
+                        buildJsonObject {
+                            put("id", request.view.id)
+                            put("offerId", request.view.offerId)
+                            put("portions", request.view.portions)
+                            put("currentPrice", request.view.currentPrice)
+                            put("status", request.view.status)
+                        },
+                    )
+                }
+            }
+            putJsonArray("orders") {
+                orders.filter { it.view.buyerId == user.id || it.view.sellerId == user.id }.forEach { order ->
+                    add(
+                        buildJsonObject {
+                            put("id", order.view.id)
+                            put("offerId", order.view.offerId)
+                            put("agreedPrice", order.view.agreedPrice)
+                            put("portions", order.view.portions)
+                            put("status", order.view.status)
+                            put("acceptedAt", order.view.acceptedAt)
+                        },
+                    )
+                }
+            }
+            put("exportedAt", Instant.now().toString())
+        }
+
     private suspend fun <T> respond(block: () -> T): T {
         delay(latencyMillis)
         return mutex.withLock { block() }
@@ -540,6 +648,9 @@ class FakeCocinaVecinaApi(
     private companion object {
         const val TOKEN_PREFIX = "fake-token-"
         const val SEEDED_ORDER_CODE = "482913"
+        const val TERMS_VERSION = "1.0"
+        val IN_PROGRESS_ORDER = listOf("ACCEPTED", "READY_FOR_PICKUP")
+        val JSON_MEDIA_TYPE = "application/json".toMediaType()
         const val BUYER = "BUYER"
         const val SELLER = "SELLER"
         const val MODERATOR = "MODERATOR"

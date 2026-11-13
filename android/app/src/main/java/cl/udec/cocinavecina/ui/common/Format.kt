@@ -10,6 +10,7 @@ import java.util.Locale
 object Format {
     private val chile = Locale.forLanguageTag("es-CL")
     private val clock = DateTimeFormatter.ofPattern("HH:mm", chile)
+    private val date = DateTimeFormatter.ofPattern("dd-MM-yyyy", chile)
 
     val CATEGORIES =
         listOf(
@@ -79,6 +80,18 @@ object Format {
         isoUtc: String,
         zone: ZoneId = ZoneId.systemDefault(),
     ): String = clock.format(Instant.parse(isoUtc).atZone(zone))
+
+    fun date(
+        isoUtc: String,
+        zone: ZoneId = ZoneId.systemDefault(),
+    ): String = date.format(Instant.parse(isoUtc).atZone(zone))
+
+    fun maskedPhone(phone: String): String {
+        val digits = phone.filter(Char::isDigit)
+        if (digits.length < 4) return "••••"
+        val last = digits.takeLast(4)
+        return if (digits.length == 11 && digits.startsWith("569")) "+56 9 •••• $last" else "•••• $last"
+    }
 
     fun orderStatus(value: String): String = ORDER_STATUSES[value] ?: label(value)
 
