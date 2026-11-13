@@ -21,20 +21,17 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -45,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,14 +78,13 @@ fun ExploreScreen(
     onViewModeChange: (ExploreViewMode) -> Unit,
     onRetry: () -> Unit,
     onOfferClick: (Long) -> Unit,
-    onLogoutClick: () -> Unit,
 ) {
     Column(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        ExploreHeader(state, onPlaceSelect, onCurrentLocationSelect, onRadiusSelect, onLogoutClick)
+        ExploreHeader(state, onPlaceSelect, onCurrentLocationSelect, onRadiusSelect)
         when (state.viewMode) {
             ExploreViewMode.LIST ->
                 LazyColumn(
@@ -146,7 +141,6 @@ private fun ExploreHeader(
     onPlaceSelect: (ExplorePlace) -> Unit,
     onCurrentLocationSelect: () -> Unit,
     onRadiusSelect: (SearchRadius) -> Unit,
-    onLogoutClick: () -> Unit,
 ) {
     Column(
         Modifier
@@ -154,10 +148,7 @@ private fun ExploreHeader(
             .padding(start = ScreenPadding, end = ScreenPadding, top = 12.dp, bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            CocinaVecinaLogo(markSize = 28.dp, modifier = Modifier.weight(1f))
-            LogoutButton(onLogoutClick)
-        }
+        CocinaVecinaLogo(markSize = 28.dp)
         Text(
             buildAnnotatedString {
                 append("Buscando cerca de ")
@@ -175,32 +166,6 @@ private fun ExploreHeader(
         state.locationNotice?.let {
             Text(it, fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
         }
-    }
-}
-
-@Composable
-private fun LogoutButton(onLogoutClick: () -> Unit) {
-    var confirming by rememberSaveable { mutableStateOf(false) }
-    IconButton(onClick = { confirming = true }) {
-        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-    if (confirming) {
-        AlertDialog(
-            onDismissRequest = { confirming = false },
-            title = { Text("¿Cerrar sesión?", fontWeight = FontWeight.Bold) },
-            text = { Text("Vas a volver a la pantalla de inicio de sesión. Puedes entrar con otra cuenta.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirming = false
-                    onLogoutClick()
-                }) {
-                    Text("Cerrar sesión", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.secondary)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirming = false }) { Text("Cancelar") }
-            },
-        )
     }
 }
 
@@ -555,7 +520,7 @@ private fun previewOffers(): List<NearbyOffer> {
 @Composable
 private fun ExploreScreenListPreview() {
     CocinaVecinaTheme {
-        ExploreScreen(ExploreUiState(offers = previewOffers()), {}, {}, {}, {}, {}, {}, {}, {}, {})
+        ExploreScreen(ExploreUiState(offers = previewOffers()), {}, {}, {}, {}, {}, {}, {}, {})
     }
 }
 
@@ -573,7 +538,6 @@ private fun ExploreScreenMapPreview() {
             onViewModeChange = {},
             onRetry = {},
             onOfferClick = {},
-            onLogoutClick = {},
         )
     }
 }
@@ -592,7 +556,6 @@ private fun ExploreScreenErrorPreview() {
             onViewModeChange = {},
             onRetry = {},
             onOfferClick = {},
-            onLogoutClick = {},
         )
     }
 }

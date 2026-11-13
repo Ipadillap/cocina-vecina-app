@@ -18,7 +18,6 @@ import cl.udec.cocinavecina.location.Locator
 fun ExploreRoute(
     repository: Repository,
     onOfferClick: (offerId: Long, distanceMeters: Long?) -> Unit,
-    onLogoutClick: () -> Unit,
 ) {
     val viewModel: ExploreViewModel =
         viewModel(
@@ -63,6 +62,5 @@ fun ExploreRoute(
         onViewModeChange = viewModel::onViewModeChange,
         onRetry = viewModel::onRetry,
         onOfferClick = { offerId -> onOfferClick(offerId, state.offers.firstOrNull { it.id == offerId }?.distanceMeters) },
-        onLogoutClick = onLogoutClick,
     )
 }
