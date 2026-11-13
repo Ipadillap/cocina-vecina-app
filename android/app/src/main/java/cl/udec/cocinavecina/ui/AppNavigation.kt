@@ -39,7 +39,7 @@ import cl.udec.cocinavecina.ui.orders.OrderScreen
 import cl.udec.cocinavecina.ui.orders.OrdersScreen
 import cl.udec.cocinavecina.ui.publish.PublishScreen
 import cl.udec.cocinavecina.ui.requests.RequestsScreen
-import cl.udec.cocinavecina.ui.session.SignUpScreen
+import cl.udec.cocinavecina.ui.signup.SignUpRoute
 
 private data class Destination(val route: String, val title: String, val icon: ImageVector)
 
@@ -57,7 +57,12 @@ fun AppNavigation(container: AppContainer) {
 private fun AnonymousFlow(repository: Repository) {
     var signingUp by rememberSaveable { mutableStateOf(false) }
     if (signingUp) {
-        SignUpScreen(repository, onBackToLogin = { signingUp = false })
+        SignUpRoute(
+            repository = repository,
+            onTermsClick = {},
+            onPrivacyClick = {},
+            onLoginClick = { signingUp = false },
+        )
     } else {
         LoginRoute(
             repository = repository,
