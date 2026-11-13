@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cl.udec.cocinavecina.AppContainer
 import cl.udec.cocinavecina.data.network.Cancellation
-import cl.udec.cocinavecina.data.network.PickupDetailsView
-import cl.udec.cocinavecina.data.network.OrderView
 import cl.udec.cocinavecina.data.network.CodeValidation
+import cl.udec.cocinavecina.data.network.OrderView
+import cl.udec.cocinavecina.data.network.PickupDetailsView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,25 +46,27 @@ class OrderViewModel(private val container: AppContainer, private val orderId: L
             .onFailure { e -> mutableUiState.update { it.copy(error = e.message) } }
     }
 
-    fun loadCode() = viewModelScope.launch {
-        val stored = repository.session.code(orderId)
-        if (stored != null) {
-            mutableUiState.update { it.copy(code = stored) }
-            return@launch
-        }
-        repository.call { issueCode(orderId) }
-            .onSuccess { c ->
-                repository.session.saveCode(orderId, c.code)
-                mutableUiState.update { it.copy(code = c.code) }
+    fun loadCode() =
+        viewModelScope.launch {
+            val stored = repository.session.code(orderId)
+            if (stored != null) {
+                mutableUiState.update { it.copy(code = stored) }
+                return@launch
             }
-            .onFailure { e -> mutableUiState.update { it.copy(error = e.message) } }
-    }
+            repository.call { issueCode(orderId) }
+                .onSuccess { c ->
+                    repository.session.saveCode(orderId, c.code)
+                    mutableUiState.update { it.copy(code = c.code) }
+                }
+                .onFailure { e -> mutableUiState.update { it.copy(error = e.message) } }
+        }
 
-    fun showPickupDetails() = viewModelScope.launch {
-        repository.call { pickupDetails(orderId) }
-            .onSuccess { d -> mutableUiState.update { it.copy(pickup = d, error = null) } }
-            .onFailure { e -> mutableUiState.update { it.copy(error = e.message) } }
-    }
+    fun showPickupDetails() =
+        viewModelScope.launch {
+            repository.call { pickupDetails(orderId) }
+                .onSuccess { d -> mutableUiState.update { it.copy(pickup = d, error = null) } }
+                .onFailure { e -> mutableUiState.update { it.copy(error = e.message) } }
+        }
 
     fun markReady() = act { markReady(orderId) }
 

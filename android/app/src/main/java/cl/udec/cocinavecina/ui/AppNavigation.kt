@@ -15,6 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,16 +28,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import cl.udec.cocinavecina.AppContainer
+import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.session.SessionState
 import cl.udec.cocinavecina.ui.common.Loading
 import cl.udec.cocinavecina.ui.explore.ExploreScreen
+import cl.udec.cocinavecina.ui.login.LoginRoute
 import cl.udec.cocinavecina.ui.moderation.ModerationScreen
 import cl.udec.cocinavecina.ui.offer.OfferDetailScreen
 import cl.udec.cocinavecina.ui.orders.OrderScreen
 import cl.udec.cocinavecina.ui.orders.OrdersScreen
 import cl.udec.cocinavecina.ui.publish.PublishScreen
-import cl.udec.cocinavecina.ui.session.LoginScreen
 import cl.udec.cocinavecina.ui.requests.RequestsScreen
+import cl.udec.cocinavecina.ui.signup.SignUpRoute
 
 private data class Destination(val route: String, val title: String, val icon: ImageVector)
 
@@ -43,21 +48,44 @@ fun AppNavigation(container: AppContainer) {
     val sessionState by container.session.sessionState.collectAsStateWithLifecycle(initialValue = SessionState.Loading)
     when (val session = sessionState) {
         SessionState.Loading -> Loading()
-        SessionState.Anonymous -> LoginScreen(container.repository)
+        SessionState.Anonymous -> AnonymousFlow(container.repository)
         is SessionState.Active -> MainScaffold(container, session)
     }
 }
 
 @Composable
-private fun MainScaffold(container: AppContainer, session: SessionState.Active) {
-    val nav = rememberNavController()
-    val destinations = buildList {
-        add(Destination("explore", "Explorar", Icons.Filled.Search))
-        if (session.isSeller) add(Destination("publish", "Publicar", Icons.Filled.Add))
-        add(Destination("requests", "Solicitudes", Icons.AutoMirrored.Filled.List))
-        add(Destination("orders", "Pedidos", Icons.Filled.ShoppingCart))
-        if (session.isModerator) add(Destination("moderation", "Moderación", Icons.Filled.Warning))
+private fun AnonymousFlow(repository: Repository) {
+    var signingUp by rememberSaveable { mutableStateOf(false) }
+    if (signingUp) {
+        SignUpRoute(
+            repository = repository,
+            onTermsClick = {},
+            onPrivacyClick = {},
+            onLoginClick = { signingUp = false },
+        )
+    } else {
+        LoginRoute(
+            repository = repository,
+            onForgotPasswordClick = {},
+            onCreateAccountClick = { signingUp = true },
+        )
     }
+}
+
+@Composable
+private fun MainScaffold(
+    container: AppContainer,
+    session: SessionState.Active,
+) {
+    val nav = rememberNavController()
+    val destinations =
+        buildList {
+            add(Destination("explore", "Explorar", Icons.Filled.Search))
+            if (session.isSeller) add(Destination("publish", "Publicar", Icons.Filled.Add))
+            add(Destination("requests", "Solicitudes", Icons.AutoMirrored.Filled.List))
+            add(Destination("orders", "Pedidos", Icons.Filled.ShoppingCart))
+            if (session.isModerator) add(Destination("moderation", "Moderación", Icons.Filled.Warning))
+        }
     LaunchedEffect(session.userId) { container.events.connect() }
 
     Scaffold(

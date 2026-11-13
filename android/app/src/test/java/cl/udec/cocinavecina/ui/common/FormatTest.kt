@@ -1,10 +1,10 @@
 package cl.udec.cocinavecina.ui.common
 
 import cl.udec.cocinavecina.ui.orders.QrCode
-import java.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import java.time.Instant
 
 class FormatTest {
     @Test

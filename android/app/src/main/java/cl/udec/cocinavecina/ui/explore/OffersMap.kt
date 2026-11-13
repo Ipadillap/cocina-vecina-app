@@ -42,15 +42,16 @@ fun OffersMap(
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_START -> mapView.onStart()
-                Lifecycle.Event.ON_RESUME -> mapView.onResume()
-                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
-                Lifecycle.Event.ON_STOP -> mapView.onStop()
-                else -> Unit
+        val observer =
+            LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_START -> mapView.onStart()
+                    Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                    Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                    Lifecycle.Event.ON_STOP -> mapView.onStop()
+                    else -> Unit
+                }
             }
-        }
         lifecycle.addObserver(observer)
         onDispose {
             lifecycle.removeObserver(observer)
@@ -64,10 +65,11 @@ fun OffersMap(
         factory = {
             mapView.also { view ->
                 view.getMapAsync { map ->
-                    map.cameraPosition = CameraPosition.Builder()
-                        .target(LatLng(center.lat, center.lon))
-                        .zoom(14.0)
-                        .build()
+                    map.cameraPosition =
+                        CameraPosition.Builder()
+                            .target(LatLng(center.lat, center.lon))
+                            .zoom(14.0)
+                            .build()
                     map.setStyle(BuildConfig.MAP_STYLE) { s ->
                         s.addSource(GeoJsonSource(SOURCE_ID, toGeoJson(offers)))
                         s.addLayer(
@@ -97,10 +99,11 @@ fun OffersMap(
     }
 }
 
-private fun toGeoJson(offers: List<NearbyOffer>): String = offers.joinToString(
-    prefix = """{"type":"FeatureCollection","features":[""",
-    postfix = "]}",
-) { o ->
-    """{"type":"Feature","geometry":{"type":"Point","coordinates":[${o.approxLongitude},${o.approxLatitude}]},""" +
-        """"properties":{"id":${o.id}}}"""
-}
+private fun toGeoJson(offers: List<NearbyOffer>): String =
+    offers.joinToString(
+        prefix = """{"type":"FeatureCollection","features":[""",
+        postfix = "]}",
+    ) { o ->
+        """{"type":"Feature","geometry":{"type":"Point","coordinates":[${o.approxLongitude},${o.approxLatitude}]},""" +
+            """"properties":{"id":${o.id}}}"""
+    }

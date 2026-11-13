@@ -27,9 +27,9 @@ import androidx.compose.ui.unit.dp
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.network.Decision
 import cl.udec.cocinavecina.data.network.OfferUnderReview
-import cl.udec.cocinavecina.ui.common.Format
-import cl.udec.cocinavecina.ui.common.ErrorMessage
 import cl.udec.cocinavecina.ui.common.EmptyState
+import cl.udec.cocinavecina.ui.common.ErrorMessage
+import cl.udec.cocinavecina.ui.common.Format
 import kotlinx.coroutines.launch
 
 @Composable
@@ -51,7 +51,12 @@ fun ModerationScreen(repository: Repository) {
                     Text(o.title, style = MaterialTheme.typography.titleMedium)
                     Text("Vendedor ${o.sellerId} · ${o.sellerReportCount} reporte(s) en total")
                     o.reports.forEach { r -> Text("• ${Format.reportReason(r.reason)}${r.detail?.let { ": $it" } ?: ""}") }
-                    OutlinedTextField(reason, { reason = it.take(200) }, label = { Text("Motivo de la decisión") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(
+                        reason,
+                        { reason = it.take(200) },
+                        label = { Text("Motivo de la decisión") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("REACTIVATE" to "Reactivar", "WITHDRAW" to "Retirar").forEach { (action, text) ->
                             val onClick = {

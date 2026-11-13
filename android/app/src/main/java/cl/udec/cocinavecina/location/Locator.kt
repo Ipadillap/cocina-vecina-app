@@ -20,9 +20,10 @@ object Locator {
     fun lastKnown(context: Context): Coordinate {
         if (!hasPermission(context)) return CONCEPCION
         val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val best = listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER, LocationManager.PASSIVE_PROVIDER)
-            .mapNotNull { provider -> runCatching { manager.getLastKnownLocation(provider) }.getOrNull() }
-            .maxByOrNull { it.time }
+        val best =
+            listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER, LocationManager.PASSIVE_PROVIDER)
+                .mapNotNull { provider -> runCatching { manager.getLastKnownLocation(provider) }.getOrNull() }
+                .maxByOrNull { it.time }
         return best?.let { Coordinate(it.latitude, it.longitude) } ?: CONCEPCION
     }
 }
