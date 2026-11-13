@@ -40,6 +40,7 @@ import cl.udec.cocinavecina.ui.explore.ExploreRoute
 import cl.udec.cocinavecina.ui.login.LoginRoute
 import cl.udec.cocinavecina.ui.moderation.ModerationScreen
 import cl.udec.cocinavecina.ui.offer.OfferDetailRoute
+import cl.udec.cocinavecina.ui.offer.ProposePriceRoute
 import cl.udec.cocinavecina.ui.orders.OrderScreen
 import cl.udec.cocinavecina.ui.orders.OrdersScreen
 import cl.udec.cocinavecina.ui.publish.PublishScreen
@@ -146,8 +147,27 @@ private fun MainScaffold(
                     offerId = entry.arguments?.getLong("id") ?: 0L,
                     distanceMeters = entry.arguments?.getLong("distance")?.takeIf { it != NO_DISTANCE },
                     onBack = { nav.popBackStack() },
-                    onProposePriceClick = { _, _ -> },
+                    onProposePriceClick = { offerId, portions -> nav.navigate("offer/$offerId/proposal?portions=$portions") },
                     onPurchaseRequested = { nav.finishFlowInTab("requests") },
+                )
+            }
+            composable(
+                "offer/{id}/proposal?portions={portions}",
+                arguments =
+                    listOf(
+                        navArgument("id") { type = NavType.LongType },
+                        navArgument("portions") {
+                            type = NavType.IntType
+                            defaultValue = 1
+                        },
+                    ),
+            ) { entry ->
+                ProposePriceRoute(
+                    repository = container.repository,
+                    offerId = entry.arguments?.getLong("id") ?: 0L,
+                    initialPortions = entry.arguments?.getInt("portions") ?: 1,
+                    onBack = { nav.popBackStack() },
+                    onRequestCreated = { nav.finishFlowInTab("requests") },
                 )
             }
             composable("publish") {
