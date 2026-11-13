@@ -2,6 +2,8 @@ package cl.udec.cocinavecina.ui.orders
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +42,7 @@ import cl.udec.cocinavecina.ui.common.ErrorMessage
 import cl.udec.cocinavecina.ui.common.Format
 import cl.udec.cocinavecina.ui.common.Loading
 import cl.udec.cocinavecina.ui.common.PrimaryButton
+import cl.udec.cocinavecina.ui.components.BackTopBar
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
@@ -48,6 +51,21 @@ private val TIMELINE = listOf("ACCEPTED", "READY_FOR_PICKUP", "DELIVERED")
 
 @Composable
 fun OrderScreen(
+    container: AppContainer,
+    session: SessionState.Active,
+    orderId: Long,
+    onBack: () -> Unit,
+) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        BackTopBar("Detalle del pedido", onBack)
+        Box(Modifier.weight(1f)) {
+            OrderContent(container, session, orderId)
+        }
+    }
+}
+
+@Composable
+private fun OrderContent(
     container: AppContainer,
     session: SessionState.Active,
     orderId: Long,

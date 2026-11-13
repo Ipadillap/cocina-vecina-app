@@ -42,6 +42,7 @@ La contraseña de todas es `una-clave-larga`.
 |---|---|---|
 | `comprador@example.com` | Comprador | Explorar, pedir porciones, negociar el precio, pedidos |
 | `vendedora@example.com` | Vendedora | Publicar, responder solicitudes, marcar pedidos como listos, validar entregas |
+| `vendedora2@example.com` | Vendedora | Segunda vendedora, con ofertas en otra zona del mapa |
 | `moderador@example.com` | Moderador | Cola de ofertas en revisión |
 | `sinverificar@example.com` | Comprador sin verificar | El error de cuenta sin verificar al iniciar sesión |
 
@@ -52,7 +53,7 @@ También puedes crear una cuenta desde la pantalla de registro. En la API falsa 
 Todos los endpoints de `CocinaVecinaApi` tienen respuesta:
 
 - **Cuenta:** registro (con rol, mayoría de edad y términos) e inicio de sesión.
-- **Ofertas:** búsqueda cercana, filtrada por radio y ordenada por distancia, precio o vencimiento; detalle; publicar; puntos de retiro.
+- **Ofertas:** búsqueda cercana, filtrada por radio y ordenada por distancia o tiempo restante (`DISTANCE` o `TIME_LEFT`); detalle; publicar; puntos de retiro.
 - **Solicitudes de compra:** enviar, contraofertar y proponer por turnos, aceptar y rechazar. Máximo de 3 rondas y precio entre el mínimo y el base.
 - **Pedidos:** generar código de retiro, marcar como listo, validar la entrega con el código, cancelar y ver los datos de retiro.
 - **Moderación:** reportar una oferta, ver la cola y reactivar o retirar.
@@ -61,7 +62,8 @@ Todos los endpoints de `CocinaVecinaApi` tienen respuesta:
 Los errores llegan con códigos HTTP reales (401, 403, 404, 409, 422) y un cuerpo de error, así que la app muestra los mismos mensajes que mostraría con el backend.
 
 Datos que ya existen al abrir la app:
-- 4 ofertas activas y 1 oculta en revisión, todas de `vendedora@example.com`.
+- 6 ofertas activas en dos zonas cercanas al centro de Concepción: 4 de `vendedora@example.com` y 2 de `vendedora2@example.com`.
+- 1 oferta oculta en revisión, de `vendedora@example.com`.
 - 1 solicitud de compra pendiente del comprador.
 - 1 pedido aceptado entre el comprador y la vendedora.
 

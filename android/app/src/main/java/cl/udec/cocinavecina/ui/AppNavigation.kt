@@ -31,7 +31,7 @@ import cl.udec.cocinavecina.AppContainer
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.session.SessionState
 import cl.udec.cocinavecina.ui.common.Loading
-import cl.udec.cocinavecina.ui.explore.ExploreScreen
+import cl.udec.cocinavecina.ui.explore.ExploreRoute
 import cl.udec.cocinavecina.ui.login.LoginRoute
 import cl.udec.cocinavecina.ui.moderation.ModerationScreen
 import cl.udec.cocinavecina.ui.offer.OfferDetailScreen
@@ -87,19 +87,28 @@ private fun MainScaffold(
             if (session.isModerator) add(Destination("moderation", "Moderación", Icons.Filled.Warning))
         }
     LaunchedEffect(session.userId) { container.events.connect() }
+    val currentEntry by nav.currentBackStackEntryAsState()
+    var selectedTab by rememberSaveable { mutableStateOf("explore") }
+    LaunchedEffect(currentEntry) {
+        currentEntry?.destination?.route?.let { route ->
+            if (destinations.any { it.route == route }) selectedTab = route
+        }
+    }
 
     Scaffold(
         bottomBar = {
             NavigationBar {
-                val current by nav.currentBackStackEntryAsState()
                 destinations.forEach { d ->
                     NavigationBarItem(
-                        selected = current?.destination?.route == d.route,
+                        selected = selectedTab == d.route,
                         onClick = {
-                            nav.navigate(d.route) {
-                                popUpTo(nav.graph.startDestinationId) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
+                            val returnedToTabRoot = d.route == selectedTab && nav.popBackStack(d.route, inclusive = false)
+                            if (!returnedToTabRoot) {
+                                nav.navigate(d.route) {
+                                    popUpTo(nav.graph.startDestinationId) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
                             }
                         },
                         icon = { Icon(d.icon, contentDescription = null) },
@@ -111,13 +120,14 @@ private fun MainScaffold(
     ) { padding ->
         NavHost(nav, startDestination = "explore", modifier = Modifier.padding(padding)) {
             composable("explore") {
-                ExploreScreen(container.repository, onOpenOffer = { nav.navigate("offer/$it") })
+                ExploreRoute(container.repository, onOfferClick = { nav.navigate("offer/$it") })
             }
             composable("offer/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 OfferDetailScreen(
                     repository = container.repository,
                     offerId = entry.arguments?.getLong("id") ?: 0L,
                     onSubmitted = { nav.navigate("requests") },
+                    onBack = { nav.popBackStack() },
                 )
             }
             composable("publish") {
@@ -130,7 +140,12 @@ private fun MainScaffold(
                 OrdersScreen(container.repository, onOpen = { nav.navigate("order/$it") })
             }
             composable("order/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
-                OrderScreen(container, session, entry.arguments?.getLong("id") ?: 0L)
+                OrderScreen(
+                    container = container,
+                    session = session,
+                    orderId = entry.arguments?.getLong("id") ?: 0L,
+                    onBack = { nav.popBackStack() },
+                )
             }
             composable("moderation") { ModerationScreen(container.repository) }
         }

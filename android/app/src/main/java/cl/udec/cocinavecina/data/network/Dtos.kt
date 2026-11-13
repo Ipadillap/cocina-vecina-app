@@ -41,6 +41,7 @@ data class NearbyOffer(
     val approxLatitude: Double,
     val approxLongitude: Double,
     val distanceMeters: Long,
+    val seller: String? = null,
 )
 
 @Serializable

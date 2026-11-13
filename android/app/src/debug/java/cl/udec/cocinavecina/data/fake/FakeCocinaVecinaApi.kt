@@ -148,12 +148,13 @@ class FakeCocinaVecinaApi(
                             approxLatitude = approxLatitude,
                             approxLongitude = approxLongitude,
                             distanceMeters = distanceMeters(lat, lon, approxLatitude, approxLongitude),
+                            seller = users.first { it.id == offer.sellerId }.displayName,
                         )
                     }
                     .filter { it.distanceMeters <= radius }
             when (order) {
                 "PRICE" -> found.sortedBy { it.basePrice }
-                "EXPIRATION", "EXPIRES_AT" -> found.sortedBy { it.expiresAt }
+                "TIME_LEFT" -> found.sortedBy { Instant.parse(it.expiresAt) }
                 else -> found.sortedBy { it.distanceMeters }
             }
         }

@@ -1,6 +1,8 @@
 package cl.udec.cocinavecina.ui.offer
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,11 +42,27 @@ import cl.udec.cocinavecina.ui.common.ErrorMessage
 import cl.udec.cocinavecina.ui.common.Format
 import cl.udec.cocinavecina.ui.common.Loading
 import cl.udec.cocinavecina.ui.common.PrimaryButton
+import cl.udec.cocinavecina.ui.components.BackTopBar
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 
 @Composable
 fun OfferDetailScreen(
+    repository: Repository,
+    offerId: Long,
+    onSubmitted: () -> Unit,
+    onBack: () -> Unit,
+) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        BackTopBar("Detalle de la oferta", onBack)
+        Box(Modifier.weight(1f)) {
+            OfferDetailContent(repository, offerId, onSubmitted)
+        }
+    }
+}
+
+@Composable
+private fun OfferDetailContent(
     repository: Repository,
     offerId: Long,
     onSubmitted: () -> Unit,
