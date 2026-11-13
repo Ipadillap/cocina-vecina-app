@@ -65,7 +65,7 @@ Datos que ya existen al abrir la app:
 - 6 ofertas activas en dos zonas cercanas al centro de Concepción: 4 de `vendedora@example.com` y 2 de `vendedora2@example.com`.
 - 1 oferta oculta en revisión, de `vendedora@example.com`.
 - 1 solicitud de compra pendiente del comprador.
-- 1 pedido aceptado entre el comprador y la vendedora.
+- 1 pedido aceptado entre el comprador y la vendedora, con código de entrega `482913`.
 
 ## Limitaciones
 

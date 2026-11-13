@@ -110,6 +110,7 @@ class FakeCocinaVecinaApi(
                     acceptedAt = now.minus(20, ChronoUnit.MINUTES).toString(),
                     windowEnd = now.plus(2, ChronoUnit.HOURS).toString(),
                 ),
+                code = SEEDED_ORDER_CODE,
             )
     }
 
@@ -355,7 +356,9 @@ class FakeCocinaVecinaApi(
         respond {
             val order = findOrder(id)
             if (requireUser().id != order.view.sellerId) fail(403, "Solo quien vende puede validar la entrega.")
-            if (order.code == null || order.code != v.code.trim()) fail(422, "El código no coincide.")
+            if (order.view.status != "READY_FOR_PICKUP") fail(422, "Primero marca el pedido como listo para retiro.")
+            if (order.code == null) fail(422, "Quien compra aún no ha generado su código de entrega.")
+            if (order.code != v.code.trim()) fail(422, "El código no coincide.")
             replaceOrder(order.copy(view = order.view.copy(status = "DELIVERED", deliveredAt = Instant.now().toString()))).view
         }
 
@@ -536,6 +539,7 @@ class FakeCocinaVecinaApi(
 
     private companion object {
         const val TOKEN_PREFIX = "fake-token-"
+        const val SEEDED_ORDER_CODE = "482913"
         const val BUYER = "BUYER"
         const val SELLER = "SELLER"
         const val MODERATOR = "MODERATOR"

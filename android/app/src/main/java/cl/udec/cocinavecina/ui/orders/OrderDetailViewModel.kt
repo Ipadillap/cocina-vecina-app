@@ -51,6 +51,13 @@ class OrderDetailViewModel(
         act(OrderAction.MARK_READY) { markReady(orderId) }
     }
 
+    fun onCodeInputChange(value: String) {
+        val digits = value.filter(Char::isDigit).take(DELIVERY_CODE_LENGTH)
+        mutableState.update { it.copy(codeInput = digits, actionError = null) }
+    }
+
+    fun onValidateClick() = onValidateCode(mutableState.value.codeInput)
+
     fun onValidateCode(code: String) {
         val current = mutableState.value
         val digits = code.filter(Char::isDigit)
@@ -59,6 +66,7 @@ class OrderDetailViewModel(
             mutableState.update { it.copy(actionError = INVALID_CODE) }
             return
         }
+        mutableState.update { it.copy(codeInput = digits) }
         act(OrderAction.VALIDATE) { validateDelivery(orderId, digits) }
     }
 

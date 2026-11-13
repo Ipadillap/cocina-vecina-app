@@ -25,6 +25,7 @@ data class OrderDetailUiState(
     val order: OrderView? = null,
     val offer: OfferView? = null,
     val code: String? = null,
+    val codeInput: String = "",
     val pickup: PickupDetailsView? = null,
     val now: Instant = Instant.now(),
     val isLoading: Boolean = true,
@@ -64,4 +65,7 @@ data class OrderDetailUiState(
 
     val isActing: Boolean
         get() = pendingAction != null
+
+    val canValidate: Boolean
+        get() = codeInput.length == DELIVERY_CODE_LENGTH && order?.status == READY_STATUS && !isActing
 }

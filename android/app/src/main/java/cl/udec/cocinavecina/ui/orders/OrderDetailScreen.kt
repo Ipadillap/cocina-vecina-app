@@ -76,7 +76,8 @@ fun OrderDetailScreen(
     onRetry: () -> Unit,
     onCallClick: (phone: String) -> Unit,
     onMarkReadyClick: () -> Unit,
-    onValidateCode: (code: String) -> Unit,
+    onCodeInputChange: (code: String) -> Unit,
+    onValidateClick: () -> Unit,
     onScanClick: () -> Unit,
     onCancelClick: () -> Unit,
     onCancelDismiss: () -> Unit,
@@ -108,9 +109,9 @@ fun OrderDetailScreen(
                     if (state.isBuyer) {
                         BuyerContent(state, order, onCallClick)
                     } else {
-                        SellerContent(state, order, onMarkReadyClick, onValidateCode, onScanClick)
+                        SellerContent(state, order, onMarkReadyClick, onCodeInputChange, onValidateClick, onScanClick)
                     }
-                    state.actionError?.let {
+                    state.actionError?.takeIf { !state.isValidatingStep }?.let {
                         Text(it, fontSize = 13.sp, color = MaterialTheme.colorScheme.error)
                     }
                     if (state.canCancel || state.pendingAction == OrderAction.CANCEL) {
@@ -393,7 +394,8 @@ private fun SellerContent(
     state: OrderDetailUiState,
     order: OrderView,
     onMarkReadyClick: () -> Unit,
-    onValidateCode: (String) -> Unit,
+    onCodeInputChange: (String) -> Unit,
+    onValidateClick: () -> Unit,
     onScanClick: () -> Unit,
 ) {
     when (order.status) {
@@ -406,7 +408,7 @@ private fun SellerContent(
                     onClick = onMarkReadyClick,
                 )
             }
-        READY_STATUS -> CodeValidationCard(state, onValidateCode, onScanClick)
+        READY_STATUS -> CodeValidationCard(state, onCodeInputChange, onValidateClick, onScanClick)
         DELIVERED_STATUS -> InfoStrip(Icons.Filled.CheckCircle, "Entrega confirmada. ¡Gracias por cocinar para el barrio!", highlighted = false)
         else -> Unit
     }
@@ -437,15 +439,18 @@ private fun SellerCard(
 @Composable
 private fun CodeValidationCard(
     state: OrderDetailUiState,
-    onValidateCode: (String) -> Unit,
+    onCodeInputChange: (String) -> Unit,
+    onValidateClick: () -> Unit,
     onScanClick: () -> Unit,
 ) {
-    var code by rememberSaveable { mutableStateOf("") }
+    val error = state.actionError.takeIf { state.pendingAction == null }
     SellerCard("Valida la entrega", "Pide el código de 6 dígitos a quien retira, o escanea su QR.") {
         OutlinedTextField(
-            value = code,
-            onValueChange = { code = it.filter(Char::isDigit).take(DELIVERY_CODE_LENGTH) },
+            value = state.codeInput,
+            onValueChange = onCodeInputChange,
             label = { Text("Código de entrega") },
+            isError = error != null,
+            supportingText = error?.let { message -> { Text(message) } },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
             textStyle = MaterialTheme.typography.titleLarge.copy(fontFamily = FontFamily.Monospace, letterSpacing = 4.sp),
             singleLine = true,
@@ -455,8 +460,8 @@ private fun CodeValidationCard(
         PrimaryActionButton(
             text = "Validar entrega",
             isBusy = state.pendingAction == OrderAction.VALIDATE,
-            enabled = code.length == DELIVERY_CODE_LENGTH && !state.isActing,
-            onClick = { onValidateCode(code) },
+            enabled = state.canValidate,
+            onClick = onValidateClick,
         )
         OutlinedButton(
             onClick = onScanClick,
@@ -562,6 +567,9 @@ private fun CancelDialog(
     )
 }
 
+private val OrderDetailUiState.isValidatingStep: Boolean
+    get() = !isBuyer && order?.status == READY_STATUS
+
 private fun previewState(
     userId: Long = 1,
     status: String = ACCEPTED_STATUS,
@@ -609,7 +617,7 @@ private fun previewState(
 @Composable
 private fun OrderDetailBuyerPreview() {
     CocinaVecinaTheme {
-        OrderDetailScreen(previewState(), {}, {}, {}, {}, {}, {}, {}, {}, {})
+        OrderDetailScreen(previewState(), {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }
 
@@ -617,6 +625,6 @@ private fun OrderDetailBuyerPreview() {
 @Composable
 private fun OrderDetailSellerPreview() {
     CocinaVecinaTheme {
-        OrderDetailScreen(previewState(userId = 2, status = READY_STATUS), {}, {}, {}, {}, {}, {}, {}, {}, {})
+        OrderDetailScreen(previewState(userId = 2, status = READY_STATUS), {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }

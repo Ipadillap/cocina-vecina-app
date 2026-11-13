@@ -77,7 +77,8 @@ fun OrderDetailRoute(
             runCatching { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${phone.filter { it.isDigit() || it == '+' }}"))) }
         },
         onMarkReadyClick = viewModel::onMarkReadyClick,
-        onValidateCode = viewModel::onValidateCode,
+        onCodeInputChange = viewModel::onCodeInputChange,
+        onValidateClick = viewModel::onValidateClick,
         onScanClick = {
             val options = GmsBarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
             GmsBarcodeScanning.getClient(context, options).startScan()

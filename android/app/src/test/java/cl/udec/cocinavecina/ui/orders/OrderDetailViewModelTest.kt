@@ -205,6 +205,25 @@ class OrderDetailViewModelTest {
     }
 
     @Test
+    fun typedCodeIsFilteredValidatedAndErrorClearsOnEdit() {
+        val viewModel =
+            viewModel(
+                userId = 2,
+                order = accepted.copy(status = READY_STATUS),
+                actionResult = { Result.failure(ApiError(422, "El código no coincide.")) },
+            )
+        viewModel.onCodeInputChange("48a2 9137")
+        assertEquals("482913", viewModel.uiState.value.codeInput)
+        assertTrue(viewModel.uiState.value.canValidate)
+        viewModel.onValidateClick()
+        assertEquals("482913", validatedCode)
+        assertEquals("El código no coincide.", viewModel.uiState.value.actionError)
+        viewModel.onCodeInputChange("48291")
+        assertNull(viewModel.uiState.value.actionError)
+        assertFalse(viewModel.uiState.value.canValidate)
+    }
+
+    @Test
     fun loadErrorMapsConnectionAndRetryRecovers() {
         var result: Result<OrderView> = Result.failure(ApiError(0, "x"))
         val viewModel = viewModel(loadedOrder = { result })
