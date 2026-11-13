@@ -9,37 +9,38 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.network.NewPurchaseRequest
+import cl.udec.cocinavecina.data.network.Price
 
 @Composable
 fun ProposePriceRoute(
     repository: Repository,
-    offerId: Long,
-    initialPortions: Int,
+    target: ProposalTarget,
     onBack: () -> Unit,
-    onRequestCreated: (requestId: Long) -> Unit,
+    onRequestCompleted: (requestId: Long) -> Unit,
 ) {
     val viewModel: ProposePriceViewModel =
         viewModel(
-            key = "propose-price-$offerId",
+            key = "propose-price-$target",
             factory =
                 viewModelFactory {
                     initializer {
                         ProposePriceViewModel(
-                            offerId = offerId,
-                            initialPortions = initialPortions,
+                            target = target,
                             loadOffer = { id -> repository.call { offer(id) } },
+                            loadRequest = { id -> repository.call { purchaseRequest(id) } },
                             submitRequest = { id, portions, unitPrice ->
                                 repository.call { submit(id, NewPurchaseRequest(portions, unitPrice)) }
                             },
+                            sendProposal = { id, unitPrice -> repository.call { propose(id, Price(unitPrice)) } },
                         )
                     }
                 },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    LaunchedEffect(state.createdRequestId) {
-        state.createdRequestId?.let { requestId ->
+    LaunchedEffect(state.completedRequestId) {
+        state.completedRequestId?.let { requestId ->
             viewModel.onNavigationHandled()
-            onRequestCreated(requestId)
+            onRequestCompleted(requestId)
         }
     }
     ProposePriceScreen(

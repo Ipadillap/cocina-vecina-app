@@ -77,6 +77,26 @@ class FakeCocinaVecinaApi(
                         proposals = listOf(ProposalView(BUYER, 4000, now.minus(15, ChronoUnit.MINUTES).toString())),
                     ),
             )
+        requests +=
+            FakeRequest(
+                buyerId = FakeSeed.BUYER_ID,
+                view =
+                    PurchaseRequestView(
+                        id = 2L,
+                        offerId = 6L,
+                        portions = 2,
+                        rounds = 1,
+                        currentPrice = 3600,
+                        currentParty = SELLER,
+                        turn = BUYER,
+                        status = "COUNTEROFFER",
+                        proposals =
+                            listOf(
+                                ProposalView(BUYER, 3300, now.minus(10, ChronoUnit.MINUTES).toString()),
+                                ProposalView(SELLER, 3600, now.minus(5, ChronoUnit.MINUTES).toString()),
+                            ),
+                    ),
+            )
         orders +=
             FakeOrder(
                 OrderView(
@@ -238,6 +258,16 @@ class FakeCocinaVecinaApi(
                 )
             requests += FakeRequest(user.id, view)
             view
+        }
+
+    override suspend fun purchaseRequest(id: Long): PurchaseRequestView =
+        respond {
+            val user = requireUser()
+            val request = findRequest(id)
+            if (user.id != request.buyerId && user.id != findOffer(request.view.offerId).sellerId) {
+                fail(403, "Esta solicitud no es tuya.")
+            }
+            request.view
         }
 
     override suspend fun myRequests(): List<PurchaseRequestView> =
@@ -402,10 +432,10 @@ class FakeCocinaVecinaApi(
         requireTurn(request)
         val offer = findOffer(request.view.offerId)
         if (price < offer.minPrice || price > offer.basePrice) fail(422, "El precio debe estar entre el mínimo y el precio base.")
-        if (request.view.rounds >= MAX_ROUNDS) fail(422, "Se alcanzó el máximo de rondas de negociación.")
+        if (party == BUYER && request.view.rounds >= MAX_ROUNDS) fail(422, "Se alcanzó el máximo de rondas de negociación.")
         return updateRequest(request) {
             it.copy(
-                rounds = it.rounds + 1,
+                rounds = if (party == BUYER) it.rounds + 1 else it.rounds,
                 currentPrice = price,
                 currentParty = party,
                 turn = if (party == BUYER) SELLER else BUYER,

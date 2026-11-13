@@ -2,6 +2,7 @@ package cl.udec.cocinavecina.ui.offer
 
 import cl.udec.cocinavecina.data.ApiError
 import cl.udec.cocinavecina.data.network.OfferView
+import cl.udec.cocinavecina.data.network.ProposalView
 import cl.udec.cocinavecina.data.network.PurchaseRequestView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,6 +24,7 @@ class ProposePriceViewModelTest {
     private data class Submission(val offerId: Long, val portions: Int, val unitPrice: Int?)
 
     private val submissions = mutableListOf<Submission>()
+    private val proposals = mutableListOf<Pair<Long, Int>>()
 
     @Before
     fun setUp() {
@@ -52,18 +54,48 @@ class ProposePriceViewModelTest {
             approxLongitude = -73.05,
         )
 
+    private val counteroffer =
+        PurchaseRequestView(
+            id = 41,
+            offerId = 9,
+            portions = 2,
+            rounds = 1,
+            currentPrice = 3300,
+            currentParty = "SELLER",
+            turn = "BUYER",
+            status = "COUNTEROFFER",
+            proposals =
+                listOf(
+                    ProposalView("BUYER", 3000, "2026-11-13T16:19:00Z"),
+                    ProposalView("SELLER", 3300, "2026-11-13T16:24:00Z"),
+                ),
+        )
+
     private fun viewModel(
         initialPortions: Int = 2,
         result: Result<PurchaseRequestView> = Result.success(PurchaseRequestView(41, 9, 2, 1, 3000, "BUYER", "SELLER", "OFFER_SENT")),
     ) = ProposePriceViewModel(
-        offerId = 9,
-        initialPortions = initialPortions,
+        target = ProposalTarget.NewRequest(offerId = 9, initialPortions = initialPortions),
         loadOffer = { Result.success(offer) },
+        loadRequest = { Result.failure(IllegalStateException()) },
         submitRequest = { offerId, portions, unitPrice ->
             submissions += Submission(offerId, portions, unitPrice)
             result
         },
+        sendProposal = { _, _ -> Result.failure(IllegalStateException()) },
     )
+
+    private fun counterViewModel(request: PurchaseRequestView = counteroffer) =
+        ProposePriceViewModel(
+            target = ProposalTarget.ExistingRequest(requestId = 41),
+            loadOffer = { Result.success(offer) },
+            loadRequest = { Result.success(request) },
+            submitRequest = { _, _, _ -> Result.failure(IllegalStateException()) },
+            sendProposal = { requestId, unitPrice ->
+                proposals += requestId to unitPrice
+                Result.success(request.copy(currentPrice = unitPrice, currentParty = "BUYER", turn = "SELLER", rounds = 2))
+            },
+        )
 
     @Test
     fun startsWithSuggestedPriceAndInitialPortions() {
@@ -131,7 +163,7 @@ class ProposePriceViewModelTest {
         viewModel.onShortcutSelect(3000)
         viewModel.onSubmitClick()
         assertEquals(listOf(Submission(9, 2, 3000)), submissions)
-        assertEquals(41L, viewModel.uiState.value.createdRequestId)
+        assertEquals(41L, viewModel.uiState.value.completedRequestId)
     }
 
     @Test
@@ -155,5 +187,43 @@ class ProposePriceViewModelTest {
         viewModel.onSubmitClick()
         assertEquals("La oferta ya no está disponible.", viewModel.uiState.value.submitError)
         assertFalse(viewModel.uiState.value.isSubmitting)
+    }
+
+    @Test
+    fun counterProposalStartsBetweenLastPricesWithFixedPortions() {
+        val state = counterViewModel().uiState.value
+        assertTrue(state.isCounterProposal)
+        assertEquals(2, state.round)
+        assertEquals(3300, state.maxPrice)
+        assertEquals(3200, state.price)
+        assertEquals(2, state.portions)
+    }
+
+    @Test
+    fun counterProposalCannotExceedSellerCounteroffer() {
+        val viewModel = counterViewModel()
+        viewModel.onPriceTextChange("3400")
+        assertEquals("No puede superar su contraoferta ($3.300)", viewModel.uiState.value.priceError)
+        viewModel.onIncreasePrice()
+        assertEquals(3300, viewModel.uiState.value.price)
+    }
+
+    @Test
+    fun counterProposalKeepsPortionsAndSendsPrice() {
+        val viewModel = counterViewModel()
+        viewModel.onPortionsChange(1)
+        viewModel.onShortcutSelect(3000)
+        viewModel.onSubmitClick()
+        assertEquals(2, viewModel.uiState.value.portions)
+        assertEquals(listOf(41L to 3000), proposals)
+        assertEquals(41L, viewModel.uiState.value.completedRequestId)
+    }
+
+    @Test
+    fun counterProposalIsBlockedAfterLastRound() {
+        val viewModel = counterViewModel(counteroffer.copy(rounds = 3))
+        viewModel.onSubmitClick()
+        assertFalse(viewModel.uiState.value.canSubmit)
+        assertTrue(proposals.isEmpty())
     }
 }

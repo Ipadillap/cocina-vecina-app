@@ -40,6 +40,7 @@ import cl.udec.cocinavecina.ui.explore.ExploreRoute
 import cl.udec.cocinavecina.ui.login.LoginRoute
 import cl.udec.cocinavecina.ui.moderation.ModerationScreen
 import cl.udec.cocinavecina.ui.offer.OfferDetailRoute
+import cl.udec.cocinavecina.ui.offer.ProposalTarget
 import cl.udec.cocinavecina.ui.offer.ProposePriceRoute
 import cl.udec.cocinavecina.ui.orders.OrderScreen
 import cl.udec.cocinavecina.ui.orders.OrdersScreen
@@ -164,10 +165,13 @@ private fun MainScaffold(
             ) { entry ->
                 ProposePriceRoute(
                     repository = container.repository,
-                    offerId = entry.arguments?.getLong("id") ?: 0L,
-                    initialPortions = entry.arguments?.getInt("portions") ?: 1,
+                    target =
+                        ProposalTarget.NewRequest(
+                            offerId = entry.arguments?.getLong("id") ?: 0L,
+                            initialPortions = entry.arguments?.getInt("portions") ?: 1,
+                        ),
                     onBack = { nav.popBackStack() },
-                    onRequestCreated = { nav.finishFlowInTab("requests") },
+                    onRequestCompleted = { nav.finishFlowInTab("requests") },
                 )
             }
             composable("publish") {

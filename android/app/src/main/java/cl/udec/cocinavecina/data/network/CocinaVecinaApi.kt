@@ -56,6 +56,11 @@ interface CocinaVecinaApi {
         @Body s: NewPurchaseRequest,
     ): PurchaseRequestView
 
+    @GET("v1/purchase-requests/{id}")
+    suspend fun purchaseRequest(
+        @Path("id") id: Long,
+    ): PurchaseRequestView
+
     @GET("v1/purchase-requests/mine")
     suspend fun myRequests(): List<PurchaseRequestView>
 
