@@ -448,10 +448,11 @@ class FakeCocinaVecinaApi(
 
     private fun viewOf(offer: FakeOffer): OfferView {
         val point = pointOf(offer)
+        val seller = users.first { it.id == offer.sellerId }
         return OfferView(
             id = offer.id,
             sellerId = offer.sellerId,
-            seller = users.first { it.id == offer.sellerId }.displayName,
+            seller = seller.displayName,
             title = offer.title,
             description = offer.description,
             category = offer.category,
@@ -464,6 +465,8 @@ class FakeCocinaVecinaApi(
             status = offer.status,
             approxLatitude = approximate(point.latitude),
             approxLongitude = approximate(point.longitude),
+            totalPortions = offer.totalPortions,
+            sellerVerified = seller.verified,
         )
     }
 

@@ -62,6 +62,8 @@ data class OfferView(
     val status: String,
     val approxLatitude: Double,
     val approxLongitude: Double,
+    val totalPortions: Int? = null,
+    val sellerVerified: Boolean? = null,
 )
 
 @Serializable

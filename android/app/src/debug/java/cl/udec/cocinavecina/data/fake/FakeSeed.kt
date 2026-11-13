@@ -29,6 +29,7 @@ data class FakeOffer(
     val preparedAt: Instant,
     val expiresAt: Instant,
     val status: String,
+    val totalPortions: Int = availablePortions,
 )
 
 data class FakePickupPoint(
@@ -72,6 +73,7 @@ object FakeSeed {
             FakeOffer(
                 2L, SELLER_ID, 1L, "Empanadas de pino", "Horneadas, porción de dos unidades.", "EMPANADAS",
                 3500, 3000, 6, listOf("GLUTEN", "EGG"), now.minus(30, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.HOURS), "ACTIVE",
+                totalPortions = 8,
             ),
             FakeOffer(
                 3L, SELLER_ID, 1L, "Crema de zapallo", null, "SOUPS_AND_CREAMS",

@@ -3,10 +3,13 @@ package cl.udec.cocinavecina.ui.common
 import java.text.NumberFormat
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object Format {
     private val chile = Locale.forLanguageTag("es-CL")
+    private val clock = DateTimeFormatter.ofPattern("HH:mm", chile)
 
     val CATEGORIES =
         listOf(
@@ -72,6 +75,11 @@ object Format {
         val min = minutesLeft(isoUtc, now)
         return if (min >= 60) "quedan ${min / 60} h ${min % 60} min" else "quedan $min min"
     }
+
+    fun clockTime(
+        isoUtc: String,
+        zone: ZoneId = ZoneId.systemDefault(),
+    ): String = clock.format(Instant.parse(isoUtc).atZone(zone))
 
     fun orderStatus(value: String): String = ORDER_STATUSES[value] ?: label(value)
 
