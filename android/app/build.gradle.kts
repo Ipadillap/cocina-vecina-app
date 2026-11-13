@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -9,6 +11,15 @@ plugins {
 if (file("google-services.json").exists()) {
     apply(plugin = libs.plugins.google.services.get().pluginId)
 }
+
+val localProperties =
+    Properties().apply {
+        rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+    }
+val useFakeApi =
+    providers.gradleProperty("cocinavecina.useFakeApi").orNull
+        ?: localProperties.getProperty("cocinavecina.useFakeApi")
+        ?: "false"
 
 android {
     namespace = "cl.udec.cocinavecina"
@@ -28,6 +39,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("Boolean", "USE_FAKE_API", useFakeApi.toBoolean().toString())
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

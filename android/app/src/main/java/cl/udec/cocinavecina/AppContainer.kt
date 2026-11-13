@@ -1,6 +1,7 @@
 package cl.udec.cocinavecina
 
 import android.content.Context
+import cl.udec.cocinavecina.data.ApiProvider
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.network.CocinaVecinaApi
 import cl.udec.cocinavecina.data.network.RealtimeEvents
@@ -41,12 +42,14 @@ class AppContainer(context: Context) {
         }
         .build()
 
-    private val api: CocinaVecinaApi = Retrofit.Builder()
+    private val remoteApi: CocinaVecinaApi = Retrofit.Builder()
         .baseUrl(BuildConfig.API_URL + "/")
         .client(authClient)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
         .create(CocinaVecinaApi::class.java)
+
+    private val api: CocinaVecinaApi = ApiProvider.create(remoteApi, session)
 
     val repository = Repository(api, session, baseClient, authClient, json)
 
