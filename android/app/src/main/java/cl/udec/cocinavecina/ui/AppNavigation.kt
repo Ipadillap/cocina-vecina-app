@@ -1,5 +1,8 @@
 package cl.udec.cocinavecina.ui
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -21,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,6 +35,7 @@ import cl.udec.cocinavecina.AppContainer
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.session.SessionState
 import cl.udec.cocinavecina.ui.common.Loading
+import cl.udec.cocinavecina.ui.components.BackTopBar
 import cl.udec.cocinavecina.ui.explore.ExploreRoute
 import cl.udec.cocinavecina.ui.login.LoginRoute
 import cl.udec.cocinavecina.ui.moderation.ModerationScreen
@@ -42,6 +47,7 @@ import cl.udec.cocinavecina.ui.requests.RequestsScreen
 import cl.udec.cocinavecina.ui.signup.SignUpRoute
 
 private const val NO_DISTANCE = -1L
+private const val START_ROUTE = "explore"
 
 private data class Destination(val route: String, val title: String, val icon: ImageVector)
 
@@ -90,7 +96,7 @@ private fun MainScaffold(
         }
     LaunchedEffect(session.userId) { container.events.connect() }
     val currentEntry by nav.currentBackStackEntryAsState()
-    var selectedTab by rememberSaveable { mutableStateOf("explore") }
+    var selectedTab by rememberSaveable { mutableStateOf(START_ROUTE) }
     LaunchedEffect(currentEntry) {
         currentEntry?.destination?.route?.let { route ->
             if (destinations.any { it.route == route }) selectedTab = route
@@ -104,13 +110,10 @@ private fun MainScaffold(
                     NavigationBarItem(
                         selected = selectedTab == d.route,
                         onClick = {
-                            val returnedToTabRoot = d.route == selectedTab && nav.popBackStack(d.route, inclusive = false)
-                            if (!returnedToTabRoot) {
-                                nav.navigate(d.route) {
-                                    popUpTo(nav.graph.startDestinationId) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                            if (d.route == selectedTab) {
+                                nav.popBackStack(d.route, inclusive = false)
+                            } else {
+                                nav.openTab(d.route)
                             }
                         },
                         icon = { Icon(d.icon, contentDescription = null) },
@@ -120,8 +123,8 @@ private fun MainScaffold(
             }
         },
     ) { padding ->
-        NavHost(nav, startDestination = "explore", modifier = Modifier.padding(padding)) {
-            composable("explore") {
+        NavHost(nav, startDestination = START_ROUTE, modifier = Modifier.padding(padding)) {
+            composable(START_ROUTE) {
                 ExploreRoute(
                     repository = container.repository,
                     onOfferClick = { offerId, distanceMeters -> nav.navigate("offer/$offerId?distance=${distanceMeters ?: NO_DISTANCE}") },
@@ -144,17 +147,23 @@ private fun MainScaffold(
                     distanceMeters = entry.arguments?.getLong("distance")?.takeIf { it != NO_DISTANCE },
                     onBack = { nav.popBackStack() },
                     onProposePriceClick = { _, _ -> },
-                    onPurchaseRequested = { nav.navigate("requests") },
+                    onPurchaseRequested = { nav.finishFlowInTab("requests") },
                 )
             }
             composable("publish") {
-                PublishScreen(container.repository, onPublished = { nav.navigate("requests") })
+                TabRootScreen("Publicar", onBack = { nav.openTab(START_ROUTE) }) {
+                    PublishScreen(container.repository, onPublished = { nav.finishFlowInTab("requests") })
+                }
             }
             composable("requests") {
-                RequestsScreen(container, session, onOpenOrder = { nav.navigate("order/$it") })
+                TabRootScreen("Solicitudes", onBack = { nav.openTab(START_ROUTE) }) {
+                    RequestsScreen(container, session, onOpenOrder = { nav.navigate("order/$it") })
+                }
             }
             composable("orders") {
-                OrdersScreen(container.repository, onOpen = { nav.navigate("order/$it") })
+                TabRootScreen("Pedidos", onBack = { nav.openTab(START_ROUTE) }) {
+                    OrdersScreen(container.repository, onOpen = { nav.navigate("order/$it") })
+                }
             }
             composable("order/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
                 OrderScreen(
@@ -164,7 +173,42 @@ private fun MainScaffold(
                     onBack = { nav.popBackStack() },
                 )
             }
-            composable("moderation") { ModerationScreen(container.repository) }
+            composable("moderation") {
+                TabRootScreen("Moderación", onBack = { nav.openTab(START_ROUTE) }) {
+                    ModerationScreen(container.repository)
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun TabRootScreen(
+    title: String,
+    onBack: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Column(Modifier.fillMaxSize()) {
+        BackTopBar(title, onBack)
+        Box(Modifier.weight(1f)) { content() }
+    }
+}
+
+private fun NavHostController.openTab(route: String) {
+    if (route == START_ROUTE) {
+        popBackStack(START_ROUTE, inclusive = false)
+        return
+    }
+    navigate(route) {
+        popUpTo(START_ROUTE) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
+private fun NavHostController.finishFlowInTab(route: String) {
+    navigate(route) {
+        popUpTo(START_ROUTE)
+        launchSingleTop = true
     }
 }
