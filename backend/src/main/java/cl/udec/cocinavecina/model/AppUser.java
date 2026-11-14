@@ -49,5 +49,4 @@ public class AppUser {
     @Column(name = "id", nullable = false)
     private Long id;
 
-
 }
