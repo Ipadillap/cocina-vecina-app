@@ -2,15 +2,16 @@ spring:
   application:
     name: cocinavecina-api
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/cocinavecina}
-    username: ${DB_USER:cocinavecina}
-    password: ${DB_PASSWORD:cocinavecina}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/${DB_NAME}}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: none
   flyway:
     enabled: true
+    baseline-on-migrate: true
 
 server:
   port: ${PORT:8080}
@@ -36,11 +37,6 @@ cocinavecina:
     type: ${PHOTOS_TYPE:local}
     directory: ${PHOTOS_DIR:./photos}
     public-url: ${PHOTOS_PUBLIC_URL:/photos}
-    s3:
-      endpoint: ${S3_ENDPOINT:}
-      bucket: ${S3_BUCKET:}
-      access-key: ${S3_ACCESS_KEY:}
-      secret-key: ${S3_SECRET_KEY:}
   nominatim:
     url: https://nominatim.openstreetmap.org
     contact: ${TEAM_CONTACT:team@example.com}
@@ -53,29 +49,10 @@ cocinavecina:
 spring:
   config:
     activate:
-      on-profile: tls
-  ssl:
-    bundle:
-      pem:
-        api:
-          reload-on-update: true
-          keystore:
-            certificate: ${TLS_CERTIFICATE:file:/tls/fullchain.pem}
-            private-key: ${TLS_PRIVATE_KEY:file:/tls/privkey.pem}
-server:
-  port: ${PORT:8443}
-  ssl:
-    bundle: api
-  http2:
-    enabled: true
-
----
-spring:
-  config:
-    activate:
       on-profile: worker
   main:
     web-application-type: none
+    keep-alive: true
 cocinavecina:
   tasks:
     enabled: true

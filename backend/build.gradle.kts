@@ -22,7 +22,6 @@ repositories {
 
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
-    implementation(platform(libs.aws.bom))
 
     implementation(libs.bundles.spring.web)
     implementation(libs.bundles.spring.data)
@@ -31,7 +30,6 @@ dependencies {
     implementation(libs.spring.boot.starter.mail)
     implementation(libs.flyway.postgresql)
     implementation(libs.bouncycastle.prov)
-    implementation(libs.aws.s3)
     runtimeOnly(libs.postgresql)
 
     testImplementation(libs.spring.boot.starter.test)
