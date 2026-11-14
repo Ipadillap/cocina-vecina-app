@@ -13,6 +13,5 @@ RUN useradd --system --uid 10001 cocinavecina \
     && chown cocinavecina /data/photos
 COPY --from=build /app/build/libs/*.jar app.jar
 USER cocinavecina
-EXPOSE 8080 8443
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75"
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

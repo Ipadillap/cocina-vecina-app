@@ -29,6 +29,8 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.spring.boot.starter.mail)
     implementation(libs.flyway.postgresql)
+    compileOnly(libs.lombok)
+
     implementation(libs.bouncycastle.prov)
     runtimeOnly(libs.postgresql)
 

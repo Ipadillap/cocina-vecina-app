@@ -2,6 +2,7 @@
 spring-boot = "4.1.1"
 bouncycastle = "1.80"
 spotless = "7.0.2"
+lombok = "1.18.48"
 
 [libraries]
 spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
@@ -19,6 +20,7 @@ flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
 postgresql = { module = "org.postgresql:postgresql" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 bouncycastle-prov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 
 [bundles]
 spring-web = ["spring-boot-starter-webmvc", "spring-boot-starter-websocket", "spring-boot-starter-validation"]
