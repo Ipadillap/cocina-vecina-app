@@ -27,7 +27,7 @@ management:
         include: health,info
 
 cocinavecina:
-  public-url: ${PUBLIC_URL:http://localhost:8080}
+  public-url: ${PUBLIC_URL:http://localhost:8088}
   jwt:
     secret: ${JWT_SECRET:dev-only-change-this-secret-of-32-bytes!!}
     access-token-ttl: 15m

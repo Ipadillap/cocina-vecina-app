@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.OffsetDateTime;
 
@@ -53,10 +52,6 @@ public class PickupPoint {
     @NotNull
     @Column(name = "cell_lon", nullable = false)
     private Double cellLon;
-
-    @ColumnDefault("(st_setsrid(st_makepoint(cell_lon, cell_lat), 4326))")
-    @Column(name = "cell_center", columnDefinition = "geography")
-    private Object cellCenter;
 
     @NotNull
     @Column(name = "created_at", nullable = false)

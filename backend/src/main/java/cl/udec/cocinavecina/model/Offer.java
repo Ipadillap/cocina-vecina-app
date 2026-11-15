@@ -39,10 +39,10 @@ public class Offer {
     @Column(name = "description", length = 300)
     private String description;
 
-    @Size(max = 30)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false, length = 30)
-    private String category;
+    private Category category;
 
     @Size(max = 200)
     @Column(name = "photo_key", length = 200)
@@ -79,10 +79,10 @@ public class Offer {
     @Column(name = "closed_at")
     private OffsetDateTime closedAt;
 
-    @Size(max = 20)
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    private OfferStatus status;
 
 
 }

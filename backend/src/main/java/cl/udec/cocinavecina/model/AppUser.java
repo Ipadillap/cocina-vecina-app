@@ -17,19 +17,15 @@ public class AppUser {
     @NotNull
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
-    @Size(max = 30)
-    @NotNull
-    @Column(name = "status", nullable = false, length = 30)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
     @Column(name = "verified_at")
     private OffsetDateTime verifiedAt;
     @NotNull
     @Column(name = "adult_declared", nullable = false)
     private Boolean adultDeclared;
-    @Size(max = 20)
-    @NotNull
-    @Column(name = "role", nullable = false, length = 20)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
     @Column(name = "encrypted_phone", length = Integer.MAX_VALUE)
     private String encryptedPhone;
     @Size(max = 255)

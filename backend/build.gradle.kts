@@ -18,6 +18,7 @@ java {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -30,6 +31,7 @@ dependencies {
     implementation(libs.spring.boot.starter.mail)
     implementation(libs.flyway.postgresql)
     compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
 
     implementation(libs.bouncycastle.prov)
     runtimeOnly(libs.postgresql)

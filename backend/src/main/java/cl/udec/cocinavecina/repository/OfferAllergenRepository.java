@@ -1,7 +1,8 @@
 package cl.udec.cocinavecina.repository;
 
 import cl.udec.cocinavecina.model.OfferAllergen;
+import cl.udec.cocinavecina.model.OfferAllergenId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface OfferAllergenRepository extends JpaRepository<OfferAllergen, Long> {
+public interface OfferAllergenRepository extends JpaRepository<OfferAllergen, OfferAllergenId> {
 }
