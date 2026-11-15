@@ -22,3 +22,7 @@ infra/.env
 infra/backups/
 infra/tls/
 backend/photos/
+
+# Fotos temporales de prueba en T3
+poc/t3-fotos/server/uploads/*
+!poc/t3-fotos/server/uploads/.gitkeep
