@@ -1,0 +1,1851 @@
+{
+  "cell_size_m": 400.0,
+  "max_theoretical_error_m": 282.84,
+  "simulations": [
+    {
+      "offer_id": 1,
+      "real_coords": [
+        -36.827012,
+        -73.050318
+      ],
+      "cell_centroid": [
+        -36.825368,
+        -73.052345
+      ],
+      "actual_error_m": 256.84,
+      "attacker_residual_error_m": 256.84,
+      "queries": [
+        {
+          "query": 1,
+          "observer": [
+            -36.824894,
+            -73.047658
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 2,
+          "observer": [
+            -36.822994,
+            -73.040794
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 3,
+          "observer": [
+            -36.822103,
+            -73.042042
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 4,
+          "observer": [
+            -36.823076,
+            -73.047137
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 5,
+          "observer": [
+            -36.82143,
+            -73.045573
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 6,
+          "observer": [
+            -36.821036,
+            -73.046581
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 7,
+          "observer": [
+            -36.819232,
+            -73.046004
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 8,
+          "observer": [
+            -36.817709,
+            -73.046273
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 9,
+          "observer": [
+            -36.822243,
+            -73.050508
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 10,
+          "observer": [
+            -36.822587,
+            -73.051216
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 11,
+          "observer": [
+            -36.816083,
+            -73.050132
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 12,
+          "observer": [
+            -36.819186,
+            -73.051859
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 13,
+          "observer": [
+            -36.816528,
+            -73.05304
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 14,
+          "observer": [
+            -36.822704,
+            -73.05298
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 15,
+          "observer": [
+            -36.81938,
+            -73.054775
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 16,
+          "observer": [
+            -36.817651,
+            -73.056881
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 17,
+          "observer": [
+            -36.821531,
+            -73.055387
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 18,
+          "observer": [
+            -36.817403,
+            -73.060577
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 19,
+          "observer": [
+            -36.818534,
+            -73.061436
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 20,
+          "observer": [
+            -36.823639,
+            -73.055319
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 21,
+          "observer": [
+            -36.823971,
+            -73.05552
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 22,
+          "observer": [
+            -36.822765,
+            -73.06056
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 23,
+          "observer": [
+            -36.82281,
+            -73.064793
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 24,
+          "observer": [
+            -36.824644,
+            -73.059505
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 25,
+          "observer": [
+            -36.825368,
+            -73.057899
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 26,
+          "observer": [
+            -36.826133,
+            -73.059915
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 27,
+          "observer": [
+            -36.826097,
+            -73.05589
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 28,
+          "observer": [
+            -36.82702,
+            -73.057557
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 29,
+          "observer": [
+            -36.828372,
+            -73.059171
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 30,
+          "observer": [
+            -36.829308,
+            -73.05912
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 31,
+          "observer": [
+            -36.828503,
+            -73.056515
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 32,
+          "observer": [
+            -36.828883,
+            -73.055977
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 33,
+          "observer": [
+            -36.829137,
+            -73.055333
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 34,
+          "observer": [
+            -36.831169,
+            -73.055755
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 35,
+          "observer": [
+            -36.830159,
+            -73.05429
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 36,
+          "observer": [
+            -36.828186,
+            -73.053017
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 37,
+          "observer": [
+            -36.834816,
+            -73.053088
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 38,
+          "observer": [
+            -36.832548,
+            -73.051781
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 39,
+          "observer": [
+            -36.833116,
+            -73.050499
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 40,
+          "observer": [
+            -36.82936,
+            -73.050724
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 41,
+          "observer": [
+            -36.835067,
+            -73.046643
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 42,
+          "observer": [
+            -36.833514,
+            -73.045887
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 43,
+          "observer": [
+            -36.828198,
+            -73.049421
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 44,
+          "observer": [
+            -36.829054,
+            -73.047441
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 45,
+          "observer": [
+            -36.830381,
+            -73.043726
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 46,
+          "observer": [
+            -36.829436,
+            -73.0431
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 47,
+          "observer": [
+            -36.829147,
+            -73.040421
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 48,
+          "observer": [
+            -36.826887,
+            -73.044955
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 49,
+          "observer": [
+            -36.826547,
+            -73.040687
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 50,
+          "observer": [
+            -36.825368,
+            -73.042208
+          ],
+          "reported_centroid": [
+            -36.825368,
+            -73.052345
+          ],
+          "reported_distance_m": 900
+        }
+      ]
+    },
+    {
+      "offer_id": 2,
+      "real_coords": [
+        -36.83145,
+        -73.03589
+      ],
+      "cell_centroid": [
+        -36.832555,
+        -73.034137
+      ],
+      "actual_error_m": 198.59,
+      "attacker_residual_error_m": 198.59,
+      "queries": [
+        {
+          "query": 1,
+          "observer": [
+            -36.831248,
+            -73.021216
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 2,
+          "observer": [
+            -36.829979,
+            -73.021602
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 3,
+          "observer": [
+            -36.831395,
+            -73.030475
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 4,
+          "observer": [
+            -36.830926,
+            -73.030435
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 5,
+          "observer": [
+            -36.827001,
+            -73.024585
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 6,
+          "observer": [
+            -36.826637,
+            -73.026263
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 7,
+          "observer": [
+            -36.826306,
+            -73.027679
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 8,
+          "observer": [
+            -36.828176,
+            -73.030665
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 9,
+          "observer": [
+            -36.825684,
+            -73.030097
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 10,
+          "observer": [
+            -36.825326,
+            -73.031202
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 11,
+          "observer": [
+            -36.825292,
+            -73.032406
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 12,
+          "observer": [
+            -36.828587,
+            -73.033825
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 13,
+          "observer": [
+            -36.82639,
+            -73.034622
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 14,
+          "observer": [
+            -36.826783,
+            -73.035513
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 15,
+          "observer": [
+            -36.824433,
+            -73.037434
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 16,
+          "observer": [
+            -36.822839,
+            -73.039849
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 17,
+          "observer": [
+            -36.823799,
+            -73.04108
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 18,
+          "observer": [
+            -36.827089,
+            -73.039787
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 19,
+          "observer": [
+            -36.828248,
+            -73.039867
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 20,
+          "observer": [
+            -36.829696,
+            -73.039053
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 21,
+          "observer": [
+            -36.831117,
+            -73.037406
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 22,
+          "observer": [
+            -36.831481,
+            -73.037525
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 23,
+          "observer": [
+            -36.83095,
+            -73.041947
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 24,
+          "observer": [
+            -36.831895,
+            -73.040669
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 25,
+          "observer": [
+            -36.832555,
+            -73.041343
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 26,
+          "observer": [
+            -36.833796,
+            -73.046414
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 27,
+          "observer": [
+            -36.834282,
+            -73.042542
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 28,
+          "observer": [
+            -36.835215,
+            -73.042532
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 29,
+          "observer": [
+            -36.834773,
+            -73.039178
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 30,
+          "observer": [
+            -36.834252,
+            -73.037056
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 31,
+          "observer": [
+            -36.836199,
+            -73.038986
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 32,
+          "observer": [
+            -36.835483,
+            -73.037163
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 33,
+          "observer": [
+            -36.838313,
+            -73.038703
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 34,
+          "observer": [
+            -36.842299,
+            -73.039866
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 35,
+          "observer": [
+            -36.840304,
+            -73.037283
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 36,
+          "observer": [
+            -36.836646,
+            -73.035112
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 37,
+          "observer": [
+            -36.842455,
+            -73.034915
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 38,
+          "observer": [
+            -36.841674,
+            -73.03342
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 39,
+          "observer": [
+            -36.841035,
+            -73.032116
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 40,
+          "observer": [
+            -36.842089,
+            -73.030267
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 41,
+          "observer": [
+            -36.840574,
+            -73.029422
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 42,
+          "observer": [
+            -36.840221,
+            -73.028058
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 43,
+          "observer": [
+            -36.836835,
+            -73.029713
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 44,
+          "observer": [
+            -36.839829,
+            -73.024459
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 45,
+          "observer": [
+            -36.83871,
+            -73.023552
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 46,
+          "observer": [
+            -36.834481,
+            -73.02976
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 47,
+          "observer": [
+            -36.835791,
+            -73.023925
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 48,
+          "observer": [
+            -36.834663,
+            -73.023879
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 49,
+          "observer": [
+            -36.83336,
+            -73.026173
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 50,
+          "observer": [
+            -36.832555,
+            -73.025413
+          ],
+          "reported_centroid": [
+            -36.832555,
+            -73.034137
+          ],
+          "reported_distance_m": 800
+        }
+      ]
+    },
+    {
+      "offer_id": 3,
+      "real_coords": [
+        -36.81982,
+        -73.06124
+      ],
+      "cell_centroid": [
+        -36.818182,
+        -73.063435
+      ],
+      "actual_error_m": 267.12,
+      "attacker_residual_error_m": 267.12,
+      "queries": [
+        {
+          "query": 1,
+          "observer": [
+            -36.817603,
+            -73.057711
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 2,
+          "observer": [
+            -36.816418,
+            -73.054851
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 3,
+          "observer": [
+            -36.816089,
+            -73.056831
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 4,
+          "observer": [
+            -36.814532,
+            -73.05514
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 5,
+          "observer": [
+            -36.813624,
+            -73.055599
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 6,
+          "observer": [
+            -36.815975,
+            -73.060499
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 7,
+          "observer": [
+            -36.816023,
+            -73.061204
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 8,
+          "observer": [
+            -36.81019,
+            -73.057099
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 9,
+          "observer": [
+            -36.813846,
+            -73.060886
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 10,
+          "observer": [
+            -36.813817,
+            -73.061663
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 11,
+          "observer": [
+            -36.807628,
+            -73.06092
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 12,
+          "observer": [
+            -36.811698,
+            -73.062925
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 13,
+          "observer": [
+            -36.808743,
+            -73.064177
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 14,
+          "observer": [
+            -36.811752,
+            -73.064967
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 15,
+          "observer": [
+            -36.810705,
+            -73.06647
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 16,
+          "observer": [
+            -36.814642,
+            -73.065516
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 17,
+          "observer": [
+            -36.811573,
+            -73.068674
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 18,
+          "observer": [
+            -36.810698,
+            -73.071169
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 19,
+          "observer": [
+            -36.813442,
+            -73.069741
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 20,
+          "observer": [
+            -36.813075,
+            -73.072215
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 21,
+          "observer": [
+            -36.814269,
+            -73.072327
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 22,
+          "observer": [
+            -36.816999,
+            -73.067166
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 23,
+          "observer": [
+            -36.815987,
+            -73.074113
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 24,
+          "observer": [
+            -36.817245,
+            -73.072697
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 25,
+          "observer": [
+            -36.818182,
+            -73.069844
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 26,
+          "observer": [
+            -36.818551,
+            -73.067086
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 300
+        },
+        {
+          "query": 27,
+          "observer": [
+            -36.820592,
+            -73.075162
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 28,
+          "observer": [
+            -36.820581,
+            -73.071004
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 29,
+          "observer": [
+            -36.82228,
+            -73.072747
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 30,
+          "observer": [
+            -36.823942,
+            -73.073339
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 31,
+          "observer": [
+            -36.823979,
+            -73.071146
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 32,
+          "observer": [
+            -36.825996,
+            -73.07151
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 33,
+          "observer": [
+            -36.823154,
+            -73.067376
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 34,
+          "observer": [
+            -36.826479,
+            -73.068312
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1000
+        },
+        {
+          "query": 35,
+          "observer": [
+            -36.824164,
+            -73.065863
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 36,
+          "observer": [
+            -36.828259,
+            -73.065836
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 37,
+          "observer": [
+            -36.827963,
+            -73.064204
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        },
+        {
+          "query": 38,
+          "observer": [
+            -36.821658,
+            -73.063162
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 39,
+          "observer": [
+            -36.821909,
+            -73.062547
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 400
+        },
+        {
+          "query": 40,
+          "observer": [
+            -36.822413,
+            -73.061718
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 500
+        },
+        {
+          "query": 41,
+          "observer": [
+            -36.827683,
+            -73.05785
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1200
+        },
+        {
+          "query": 42,
+          "observer": [
+            -36.823435,
+            -73.059271
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 700
+        },
+        {
+          "query": 43,
+          "observer": [
+            -36.824162,
+            -73.057255
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 900
+        },
+        {
+          "query": 44,
+          "observer": [
+            -36.821693,
+            -73.058765
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 45,
+          "observer": [
+            -36.822177,
+            -73.056567
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 46,
+          "observer": [
+            -36.820983,
+            -73.05707
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 47,
+          "observer": [
+            -36.820218,
+            -73.05701
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 600
+        },
+        {
+          "query": 48,
+          "observer": [
+            -36.820029,
+            -73.054451
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 49,
+          "observer": [
+            -36.819112,
+            -73.054241
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 800
+        },
+        {
+          "query": 50,
+          "observer": [
+            -36.818182,
+            -73.050937
+          ],
+          "reported_centroid": [
+            -36.818182,
+            -73.063435
+          ],
+          "reported_distance_m": 1100
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "buyer_reference": {
+    "approxLatitude": -36.828,
+    "approxLongitude": -73.038
+  },
+  "nearby_offers": [
+    {
+      "id": 101,
+      "title": "Empanadas de Pino (2 un.)",
+      "category": "EMPANADAS",
+      "photoUrl": "/photos/offer_101.webp",
+      "basePrice": 3500,
+      "minPrice": 3000,
+      "availablePortions": 6,
+      "expiresAt": "2026-11-15T17:47:35Z",
+      "approxLatitude": -36.828962,
+      "approxLongitude": -73.039487,
+      "distanceMeters": 200
+    },
+    {
+      "id": 102,
+      "title": "Lasaña Boloñesa Casera",
+      "category": "MAIN_COURSE",
+      "photoUrl": "/photos/offer_102.webp",
+      "basePrice": 4500,
+      "minPrice": 3800,
+      "availablePortions": 4,
+      "expiresAt": "2026-11-15T18:47:35Z",
+      "approxLatitude": -36.825368,
+      "approxLongitude": -73.042793,
+      "distanceMeters": 500
+    },
+    {
+      "id": 103,
+      "title": "Pan Amasado Integral (4 un.)",
+      "category": "HOMEMADE_BREAD",
+      "photoUrl": "/photos/offer_103.webp",
+      "basePrice": 1800,
+      "minPrice": 1500,
+      "availablePortions": 8,
+      "expiresAt": "2026-11-15T19:47:35Z",
+      "approxLatitude": -36.821775,
+      "approxLongitude": -73.044007,
+      "distanceMeters": 900
+    },
+    {
+      "id": 105,
+      "title": "Kuchen de Nuez y Manzana",
+      "category": "PASTRY",
+      "photoUrl": "/photos/offer_105.webp",
+      "basePrice": 2800,
+      "minPrice": 2200,
+      "availablePortions": 5,
+      "expiresAt": "2026-11-15T20:47:35Z",
+      "approxLatitude": -36.832555,
+      "approxLongitude": -73.048225,
+      "distanceMeters": 1000
+    },
+    {
+      "id": 108,
+      "title": "Chaparritas Queso Jamón (3 un.)",
+      "category": "EMPANADAS",
+      "photoUrl": "/photos/offer_108.webp",
+      "basePrice": 2500,
+      "minPrice": 2000,
+      "availablePortions": 7,
+      "expiresAt": "2026-11-15T18:47:35Z",
+      "approxLatitude": -36.825368,
+      "approxLongitude": -73.05052,
+      "distanceMeters": 1200
+    },
+    {
+      "id": 104,
+      "title": "Cazuela de Vacuno",
+      "category": "SOUPS_AND_CREAMS",
+      "photoUrl": "/photos/offer_104.webp",
+      "basePrice": 4200,
+      "minPrice": 3500,
+      "availablePortions": 3,
+      "expiresAt": "2026-11-15T16:47:35Z",
+      "approxLatitude": -36.825368,
+      "approxLongitude": -73.052286,
+      "distanceMeters": 1300
+    },
+    {
+      "id": 107,
+      "title": "Porotos con Riendas",
+      "category": "MAIN_COURSE",
+      "photoUrl": "/photos/offer_107.webp",
+      "basePrice": 3800,
+      "minPrice": 3000,
+      "availablePortions": 5,
+      "expiresAt": "2026-11-15T17:47:35Z",
+      "approxLatitude": -36.821775,
+      "approxLongitude": -73.020056,
+      "distanceMeters": 1700
+    },
+    {
+      "id": 106,
+      "title": "Bowl Quínoa y Palta",
+      "category": "SALADS",
+      "photoUrl": "/photos/offer_106.webp",
+      "basePrice": 3900,
+      "minPrice": 3200,
+      "availablePortions": 4,
+      "expiresAt": "2026-11-15T17:47:35Z",
+      "approxLatitude": -36.839741,
+      "approxLongitude": -73.054337,
+      "distanceMeters": 2000
+    }
+  ],
+  "offer_details": [
+    {
+      "id": 101,
+      "sellerId": 11,
+      "seller": "Sra. Marta",
+      "title": "Empanadas de Pino (2 un.)",
+      "description": "Empanadas de Pino (2 un.) - Preparación casera del día.",
+      "category": "EMPANADAS",
+      "photoUrl": "/photos/offer_101.webp",
+      "basePrice": 3500,
+      "minPrice": 3000,
+      "availablePortions": 6,
+      "allergens": [
+        "GLUTEN",
+        "EGG"
+      ],
+      "preparedAt": "2026-11-15T14:17:35Z",
+      "expiresAt": "2026-11-15T17:47:35Z",
+      "status": "ACTIVE",
+      "approxLatitude": -36.828962,
+      "approxLongitude": -73.039487
+    },
+    {
+      "id": 102,
+      "sellerId": 12,
+      "seller": "Cocina Don Carlos",
+      "title": "Lasaña Boloñesa Casera",
+      "description": "Lasaña Boloñesa Casera - Preparación casera del día.",
+      "category": "MAIN_COURSE",
+      "photoUrl": "/photos/offer_102.webp",
+      "basePrice": 4500,
+      "minPrice": 3800,
+      "availablePortions": 4,
+      "allergens": [
+        "GLUTEN",
+        "MILK",
+        "EGG"
+      ],
+      "preparedAt": "2026-11-15T14:17:35Z",
+      "expiresAt": "2026-11-15T18:47:35Z",
+      "status": "ACTIVE",
+      "approxLatitude": -36.825368,
+      "approxLongitude": -73.042793
+    },
+    {
+      "id": 103,
+      "sellerId": 13,
+      "seller": "Panadería La Esquina",
+      "title": "Pan Amasado Integral (4 un.)",
+      "description": "Pan Amasado Integral (4 un.) - Preparación casera del día.",
+      "category": "HOMEMADE_BREAD",
+      "photoUrl": "/photos/offer_103.webp",
+      "basePrice": 1800,
+      "minPrice": 1500,
+      "availablePortions": 8,
+      "allergens": [
+        "GLUTEN",
+        "SESAME"
+      ],
+      "preparedAt": "2026-11-15T14:17:35Z",
+      "expiresAt": "2026-11-15T19:47:35Z",
+      "status": "ACTIVE",
+      "approxLatitude": -36.821775,
+      "approxLongitude": -73.044007
+    },
+    {
+      "id": 104,
+      "sellerId": 14,
+      "seller": "Delicias del Sur",
+      "title": "Cazuela de Vacuno",
+      "description": "Cazuela de Vacuno - Preparación casera del día.",
+      "category": "SOUPS_AND_CREAMS",
+      "photoUrl": "/photos/offer_104.webp",
+      "basePrice": 4200,
+      "minPrice": 3500,
+      "availablePortions": 3,
+      "allergens": [
+        "NONE_KNOWN"
+      ],
+      "preparedAt": "2026-11-15T14:17:35Z",
+      "expiresAt": "2026-11-15T16:47:35Z",
+      "status": "ACTIVE",
+      "approxLatitude": -36.825368,
+      "approxLongitude": -73.052286
+    },
+    {
+      "id": 105,
+      "sellerId": 15,
+      "seller": "Dulce Conce",
+      "title": "Kuchen de Nuez y Manzana",
+      "description": "Kuchen de Nuez y Manzana - Preparación casera del día.",
+      "category": "PASTRY",
+      "photoUrl": "/photos/offer_105.webp",
+      "basePrice": 2800,
+      "minPrice": 2200,
+      "availablePortions": 5,
+      "allergens": [
+        "GLUTEN",
+        "MILK",
+        "EGG",
+        "TREE_NUTS"
+      ],
+      "preparedAt": "2026-11-15T14:17:35Z",
+      "expiresAt": "2026-11-15T20:47:35Z",
+      "status": "ACTIVE",
+      "approxLatitude": -36.832555,
+      "approxLongitude": -73.048225
+    },
+    {
+      "id": 106,
+      "sellerId": 16,
+      "seller": "Verde Vivo",
+      "title": "Bowl Quínoa y Palta",
+      "description": "Bowl Quínoa y Palta - Preparación casera del día.",
+      "category": "SALADS",
+      "photoUrl": "/photos/offer_106.webp",
+      "basePrice": 3900,
+      "minPrice": 3200,
+      "availablePortions": 4,
+      "allergens": [
+        "SESAME"
+      ],
+      "preparedAt": "2026-11-15T14:17:35Z",
+      "expiresAt": "2026-11-15T17:47:35Z",
+      "status": "ACTIVE",
+      "approxLatitude": -36.839741,
+      "approxLongitude": -73.054337
+    },
+    {
+      "id": 107,
+      "sellerId": 17,
+      "seller": "Sabores de Casa",
+      "title": "Porotos con Riendas",
+      "description": "Porotos con Riendas - Preparación casera del día.",
+      "category": "MAIN_COURSE",
+      "photoUrl": "/photos/offer_107.webp",
+      "basePrice": 3800,
+      "minPrice": 3000,
+      "availablePortions": 5,
+      "allergens": [
+        "GLUTEN"
+      ],
+      "preparedAt": "2026-11-15T14:17:35Z",
+      "expiresAt": "2026-11-15T17:47:35Z",
+      "status": "ACTIVE",
+      "approxLatitude": -36.821775,
+      "approxLongitude": -73.020056
+    },
+    {
+      "id": 108,
+      "sellerId": 18,
+      "seller": "Sra. Elena",
+      "title": "Chaparritas Queso Jamón (3 un.)",
+      "description": "Chaparritas Queso Jamón (3 un.) - Preparación casera del día.",
+      "category": "EMPANADAS",
+      "photoUrl": "/photos/offer_108.webp",
+      "basePrice": 2500,
+      "minPrice": 2000,
+      "availablePortions": 7,
+      "allergens": [
+        "GLUTEN",
+        "MILK"
+      ],
+      "preparedAt": "2026-11-15T14:17:35Z",
+      "expiresAt": "2026-11-15T18:47:35Z",
+      "status": "ACTIVE",
+      "approxLatitude": -36.825368,
+      "approxLongitude": -73.05052
+    }
+  ]
+}
