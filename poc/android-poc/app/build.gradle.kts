@@ -24,6 +24,10 @@ android {
                 "../../t4-geocoding",
                 "../../t5-celdas"
             )
+            assets.srcDirs(
+                "src/main/assets",
+                "../../t7-demo"
+            )
         }
     }
     compileOptions {
