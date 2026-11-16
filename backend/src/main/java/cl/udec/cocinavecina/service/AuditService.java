@@ -17,11 +17,17 @@ public class AuditService {
 
     @Transactional
     public void log(Long actorId, String action, String entity, Long entityId) {
+        log(actorId, action, entity, entityId, null);
+    }
+
+    @Transactional
+    public void log(Long actorId, String action, String entity, Long entityId, String detail) {
         auditEvents.save(AuditEvent.builder()
             .actorId(actorId)
             .action(action)
             .entity(entity)
             .entityId(entityId)
+            .detail(detail)
             .occurredAt(OffsetDateTime.now())
             .build());
     }
