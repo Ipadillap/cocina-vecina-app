@@ -27,23 +27,35 @@ class RealtimeEvents(
         if (socket != null) return
         val url = BuildConfig.API_URL.replaceFirst("http", "ws") + "/v1/events"
         val request = Request.Builder().url(url).header("Authorization", "Bearer $token").build()
-        socket = client.newWebSocket(
-            request,
-            object : WebSocketListener() {
-                override fun onMessage(webSocket: WebSocket, text: String) {
-                    runCatching { json.decodeFromString(UserEvent.serializer(), text) }
-                        .onSuccess { flow.tryEmit(it) }
-                }
+        socket =
+            client.newWebSocket(
+                request,
+                object : WebSocketListener() {
+                    override fun onMessage(
+                        webSocket: WebSocket,
+                        text: String,
+                    ) {
+                        runCatching { json.decodeFromString(UserEvent.serializer(), text) }
+                            .onSuccess { flow.tryEmit(it) }
+                    }
 
-                override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                    socket = null
-                }
+                    override fun onFailure(
+                        webSocket: WebSocket,
+                        t: Throwable,
+                        response: Response?,
+                    ) {
+                        socket = null
+                    }
 
-                override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                    socket = null
-                }
-            },
-        )
+                    override fun onClosed(
+                        webSocket: WebSocket,
+                        code: Int,
+                        reason: String,
+                    ) {
+                        socket = null
+                    }
+                },
+            )
     }
 
     fun disconnect() {

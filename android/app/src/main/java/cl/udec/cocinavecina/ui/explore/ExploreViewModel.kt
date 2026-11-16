@@ -2,54 +2,97 @@ package cl.udec.cocinavecina.ui.explore
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cl.udec.cocinavecina.data.Repository
+import cl.udec.cocinavecina.data.ApiError
 import cl.udec.cocinavecina.data.network.NearbyOffer
 import cl.udec.cocinavecina.location.Coordinate
-import cl.udec.cocinavecina.location.Locator
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
-class ExploreViewModel(private val repository: Repository) : ViewModel() {
-    data class UiState(
-        val center: Coordinate = Locator.CONCEPCION,
-        val radius: Int = 1500,
-        val order: String = "DISTANCE",
-        val showMap: Boolean = true,
-        val loading: Boolean = false,
-        val offers: List<NearbyOffer> = emptyList(),
-        val error: String? = null,
-    )
+class ExploreViewModel(
+    private val searchOffers: suspend (center: Coordinate, radiusMeters: Int, order: String) -> Result<List<NearbyOffer>>,
+    private val resolvePhotoUrl: (String?) -> String?,
+) : ViewModel() {
+    private val mutableState = MutableStateFlow(ExploreUiState())
+    val uiState: StateFlow<ExploreUiState> = mutableState.asStateFlow()
 
-    private val mutableUiState = MutableStateFlow(UiState())
-    val uiState: StateFlow<UiState> = mutableUiState.asStateFlow()
+    private var searchJob: Job? = null
+    private var started = false
 
-    fun setCenter(c: Coordinate) {
-        mutableUiState.update { it.copy(center = c) }
-        search()
-    }
-
-    fun setRadius(meters: Int) {
-        mutableUiState.update { it.copy(radius = meters) }
-        search()
-    }
-
-    fun setOrder(order: String) {
-        mutableUiState.update { it.copy(order = order) }
-        search()
-    }
-
-    fun toggleView() = mutableUiState.update { it.copy(showMap = !it.showMap) }
-
-    fun search() {
-        val e = mutableUiState.value
-        mutableUiState.update { it.copy(loading = true, error = null) }
-        viewModelScope.launch {
-            repository.call { nearby(e.center.lat, e.center.lon, e.radius, e.order) }
-                .onSuccess { list -> mutableUiState.update { it.copy(loading = false, offers = list) } }
-                .onFailure { err -> mutableUiState.update { it.copy(loading = false, error = err.message) } }
+    fun start(currentLocation: Coordinate?) {
+        if (started) return
+        started = true
+        if (currentLocation != null) {
+            mutableState.update { it.copy(place = ExplorePlace.currentLocation(currentLocation)) }
         }
+        search()
+    }
+
+    fun onPlaceSelect(place: ExplorePlace) {
+        mutableState.update { it.copy(place = place, locationNotice = null) }
+        search()
+    }
+
+    fun onLocationPermissionDenied() {
+        mutableState.update { it.copy(locationNotice = LOCATION_DENIED) }
+    }
+
+    fun onRadiusSelect(radius: SearchRadius) {
+        if (radius == mutableState.value.radius) return
+        mutableState.update { it.copy(radius = radius) }
+        search()
+    }
+
+    fun onOrderSelect(order: OfferOrder) {
+        if (order == mutableState.value.order) return
+        mutableState.update { it.copy(order = order) }
+        search()
+    }
+
+    fun onCategorySelect(category: String?) {
+        mutableState.update { it.copy(category = category) }
+    }
+
+    fun onViewModeChange(viewMode: ExploreViewMode) {
+        mutableState.update { it.copy(viewMode = viewMode) }
+    }
+
+    fun onRetry() = search()
+
+    private fun search() {
+        val current = mutableState.value
+        searchJob?.cancel()
+        mutableState.update { it.copy(isLoading = true, error = null) }
+        searchJob =
+            viewModelScope.launch {
+                val result =
+                    try {
+                        searchOffers(current.place.coordinate, current.radius.meters, current.order.apiValue)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Result.failure(e)
+                    }
+                mutableState.update { state ->
+                    result.fold(
+                        onSuccess = { offers ->
+                            state.copy(isLoading = false, offers = offers.map { it.copy(photoUrl = resolvePhotoUrl(it.photoUrl)) })
+                        },
+                        onFailure = { failure -> state.copy(isLoading = false, error = failure.toMessage()) },
+                    )
+                }
+            }
+    }
+
+    private fun Throwable.toMessage(): String = if ((this as? ApiError)?.code == 0) NO_CONNECTION else LOAD_ERROR
+
+    companion object {
+        const val NO_CONNECTION = "Sin conexión. Revisa tu internet e inténtalo de nuevo."
+        const val LOAD_ERROR = "No pudimos cargar las ofertas. Inténtalo de nuevo."
+        const val LOCATION_DENIED = "Sin permiso de ubicación. Elige un barrio para buscar."
     }
 }

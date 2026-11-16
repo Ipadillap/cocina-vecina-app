@@ -21,12 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.network.OrderView
-import cl.udec.cocinavecina.ui.common.Format
-import cl.udec.cocinavecina.ui.common.ErrorMessage
 import cl.udec.cocinavecina.ui.common.EmptyState
+import cl.udec.cocinavecina.ui.common.ErrorMessage
+import cl.udec.cocinavecina.ui.common.Format
 
 @Composable
-fun OrdersScreen(repository: Repository, onOpen: (Long) -> Unit) {
+fun OrdersScreen(
+    repository: Repository,
+    onOpen: (Long) -> Unit,
+) {
     var orders by remember { mutableStateOf<List<OrderView>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(Unit) {

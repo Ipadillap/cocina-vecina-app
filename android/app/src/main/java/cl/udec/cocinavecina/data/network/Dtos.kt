@@ -29,6 +29,18 @@ data class TokenResponse(
 )
 
 @Serializable
+data class AccountView(
+    val id: Long,
+    val email: String,
+    val displayName: String,
+    val phone: String? = null,
+    val role: String,
+    val verified: Boolean,
+    val termsVersion: String? = null,
+    val termsAcceptedAt: String? = null,
+)
+
+@Serializable
 data class NearbyOffer(
     val id: Long,
     val title: String,
@@ -41,6 +53,7 @@ data class NearbyOffer(
     val approxLatitude: Double,
     val approxLongitude: Double,
     val distanceMeters: Long,
+    val seller: String? = null,
 )
 
 @Serializable
@@ -61,6 +74,8 @@ data class OfferView(
     val status: String,
     val approxLatitude: Double,
     val approxLongitude: Double,
+    val totalPortions: Int? = null,
+    val sellerVerified: Boolean? = null,
 )
 
 @Serializable
@@ -119,6 +134,8 @@ data class PurchaseRequestView(
     val closeReason: String? = null,
     val orderId: Long? = null,
     val proposals: List<ProposalView> = emptyList(),
+    // Fuera del contrato actual: nombre visible de quien compra (la API falsa lo envía; la UI usa "Vecino" si falta).
+    val buyerName: String? = null,
 )
 
 @Serializable
@@ -134,6 +151,8 @@ data class OrderView(
     val readyAt: String? = null,
     val deliveredAt: String? = null,
     val windowEnd: String,
+    // Fuera del contrato actual: nombre visible de quien compra (la UI usa "Vecino" si falta).
+    val buyerName: String? = null,
 )
 
 @Serializable
