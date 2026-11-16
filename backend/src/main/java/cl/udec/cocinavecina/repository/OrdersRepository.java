@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Lock;
 import jakarta.persistence.LockModeType;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.List;
 
@@ -44,4 +45,6 @@ public interface OrdersRepository extends JpaRepository<Order, Long> {
     Optional<Order> lockById(@Param("id") Long id);
 
     List<Order> findByBuyer_IdOrSeller_IdOrderByAcceptedAtDesc(Long buyerId, Long sellerId);
+
+    List<Order> findByRequest_IdIn(Collection<Long> requestIds);
 }

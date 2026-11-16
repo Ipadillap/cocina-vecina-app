@@ -116,4 +116,19 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
         nativeQuery = true
     )
     void restock(@Param("offerId") Long offerId, @Param("portions") int portions);
+
+    @Modifying(flushAutomatically = true)
+    @Query(
+        value = """
+            update offer
+            set available_portions = available_portions - :portions,
+                status = case when available_portions - :portions = 0 then 'SOLD_OUT' else status end
+            where id = :offerId
+              and status = 'ACTIVE'
+              and expires_at > now()
+              and available_portions >= :portions
+            """,
+        nativeQuery = true
+    )
+    int reserve(@Param("offerId") Long offerId, @Param("portions") int portions);
 }
