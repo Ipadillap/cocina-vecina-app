@@ -64,6 +64,7 @@ fun SignUpScreen(
     onDisplayNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
     onWantsToSellChange: (Boolean) -> Unit,
     onPhoneChange: (String) -> Unit,
     onAdultChange: (Boolean) -> Unit,
@@ -99,7 +100,7 @@ fun SignUpScreen(
                     color = MaterialTheme.colorScheme.onBackground,
                 )
                 Text(
-                    "Puedes mirar sin cuenta. Para publicar o proponer un precio hay que verificar el correo.",
+                    "Para publicar o proponer un precio hay que verificar el correo.",
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -127,6 +128,16 @@ fun SignUpScreen(
                 onValueChange = onPasswordChange,
                 placeholder = "Mínimo ${SignUpViewModel.MIN_PASSWORD_LENGTH}, con mayúscula, número y símbolo",
                 errorText = state.passwordError,
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Next,
+                visualTransformation = PasswordVisualTransformation(),
+            )
+            LabeledTextField(
+                label = "Repite la contraseña",
+                value = state.confirmPassword,
+                onValueChange = onConfirmPasswordChange,
+                placeholder = "Escríbela otra vez",
+                errorText = state.confirmPasswordError,
                 keyboardType = KeyboardType.Password,
                 imeAction = if (state.wantsToSell) ImeAction.Next else ImeAction.Done,
                 keyboardActions = KeyboardActions(onDone = { onSignUpClick() }),
@@ -244,7 +255,7 @@ private fun ConsentRow(
 
 private fun submitLabel(state: SignUpUiState): String =
     when {
-        state.successMessage != null -> "Revisa tu correo"
+        state.successMessage != null -> "Cuenta creada"
         state.hasEmptyField -> "Completa tus datos"
         state.hasPendingConsent -> "Acepta para continuar"
         else -> "Crear cuenta"
@@ -331,7 +342,7 @@ private fun SignUpBottomBar(
 @Composable
 private fun SignUpScreenPreview() {
     CocinaVecinaTheme {
-        SignUpScreen(SignUpUiState(), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+        SignUpScreen(SignUpUiState(), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }
 
@@ -356,6 +367,7 @@ private fun SignUpScreenFilledPreview() {
             onDisplayNameChange = {},
             onEmailChange = {},
             onPasswordChange = {},
+            onConfirmPasswordChange = {},
             onWantsToSellChange = {},
             onPhoneChange = {},
             onAdultChange = {},

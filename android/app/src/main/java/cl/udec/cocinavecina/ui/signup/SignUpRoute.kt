@@ -11,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.udec.cocinavecina.data.Repository
+import cl.udec.cocinavecina.data.network.LoginRequest
 
 @Composable
 fun SignUpRoute(
@@ -24,7 +25,12 @@ fun SignUpRoute(
             factory =
                 viewModelFactory {
                     initializer {
-                        SignUpViewModel(register = { request -> repository.call { register(request) } })
+                        SignUpViewModel(
+                            register = { request -> repository.call { register(request) } },
+                            signIn = { email, password ->
+                                repository.call { login(LoginRequest(email, password)) }.mapCatching { repository.session.save(it) }
+                            },
+                        )
                     }
                 },
         )
@@ -42,6 +48,7 @@ fun SignUpRoute(
         onDisplayNameChange = viewModel::onDisplayNameChange,
         onEmailChange = viewModel::onEmailChange,
         onPasswordChange = viewModel::onPasswordChange,
+        onConfirmPasswordChange = viewModel::onConfirmPasswordChange,
         onWantsToSellChange = viewModel::onWantsToSellChange,
         onPhoneChange = viewModel::onPhoneChange,
         onAdultChange = viewModel::onAdultChange,

@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -25,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import cl.udec.cocinavecina.data.network.NearbyOffer
 import cl.udec.cocinavecina.ui.common.CocinaVecinaMark
 import cl.udec.cocinavecina.ui.common.Format
-import coil.compose.AsyncImage
+import cl.udec.cocinavecina.ui.common.RemoteImage
 
 private const val URGENT_MINUTES = 60L
 
@@ -94,11 +93,11 @@ fun OfferCard(
 private fun OfferPhoto(photoUrl: String?) {
     val shape = RoundedCornerShape(12.dp)
     if (photoUrl != null) {
-        AsyncImage(
+        RemoteImage(
             model = photoUrl,
             contentDescription = null,
-            contentScale = ContentScale.Crop,
             modifier = Modifier.size(88.dp).clip(shape),
+            markSize = 36.dp,
         )
     } else {
         Box(

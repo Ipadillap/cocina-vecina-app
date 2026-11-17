@@ -28,6 +28,7 @@ class SessionStore(private val context: Context) {
         val TOKEN = stringPreferencesKey("token")
         val USER = longPreferencesKey("user")
         val ROLE = stringPreferencesKey("role")
+        val REFRESH = stringPreferencesKey("refresh")
 
         fun code(orderId: Long) = stringPreferencesKey("code_$orderId")
     }
@@ -36,10 +37,15 @@ class SessionStore(private val context: Context) {
     var currentToken: String? = null
         private set
 
+    @Volatile
+    var currentRefreshToken: String? = null
+        private set
+
     val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { p ->
             val token = p[Keys.TOKEN]
             currentToken = token
+            currentRefreshToken = p[Keys.REFRESH]
             if (token == null) {
                 SessionState.Anonymous
             } else {
@@ -48,7 +54,9 @@ class SessionStore(private val context: Context) {
         }
 
     suspend fun load() {
-        currentToken = context.sessionDataStore.data.first()[Keys.TOKEN]
+        val p = context.sessionDataStore.data.first()
+        currentToken = p[Keys.TOKEN]
+        currentRefreshToken = p[Keys.REFRESH]
     }
 
     suspend fun save(t: TokenResponse) {
@@ -56,13 +64,27 @@ class SessionStore(private val context: Context) {
             it[Keys.TOKEN] = t.accessToken
             it[Keys.USER] = t.userId
             it[Keys.ROLE] = t.role
+            val refresh = t.refreshToken
+            if (refresh != null) {
+                it[Keys.REFRESH] = refresh
+            } else {
+                it.remove(Keys.REFRESH)
+            }
         }
         currentToken = t.accessToken
+        currentRefreshToken = t.refreshToken
     }
 
     suspend fun clear() {
-        context.sessionDataStore.edit { it.clear() }
+        // Solo se borra la sesión; los códigos de entrega guardados se conservan.
+        context.sessionDataStore.edit {
+            it.remove(Keys.TOKEN)
+            it.remove(Keys.USER)
+            it.remove(Keys.ROLE)
+            it.remove(Keys.REFRESH)
+        }
         currentToken = null
+        currentRefreshToken = null
     }
 
     suspend fun saveCode(

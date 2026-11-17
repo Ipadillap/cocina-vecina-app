@@ -3,12 +3,14 @@
 package cl.udec.cocinavecina.ui.publish
 
 import android.Manifest
+import android.graphics.BitmapFactory
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -62,6 +64,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -230,6 +234,7 @@ fun PublishScreen(
     var busy by remember { mutableStateOf(false) }
     var uploading by remember { mutableStateOf(false) }
     var locating by remember { mutableStateOf(false) }
+    var photoPreview by remember { mutableStateOf<ByteArray?>(null) }
 
     LaunchedEffect(Unit) {
         repository.call { myPickupPoints() }.onSuccess { points ->
@@ -244,10 +249,18 @@ fun PublishScreen(
             scope.launch {
                 uploading = true
                 error = null
-                val bytes = withContext(Dispatchers.IO) { Photos.compress(context, uri) }
-                repository.uploadPhoto(bytes)
-                    .onSuccess { draft.photoKey = it }
-                    .onFailure { error = it.message }
+                val compressed = withContext(Dispatchers.IO) { runCatching { Photos.compress(context, uri) } }
+                val bytes = compressed.getOrNull()
+                if (bytes == null) {
+                    error = "No pudimos leer esa foto. Prueba con otra imagen (JPG o PNG)."
+                } else {
+                    repository.uploadPhoto(bytes)
+                        .onSuccess {
+                            draft.photoKey = it
+                            photoPreview = bytes
+                        }
+                        .onFailure { error = it.message }
+                }
                 uploading = false
             }
         }
@@ -352,6 +365,7 @@ fun PublishScreen(
                 1 -> DishStep(
                     draft = draft,
                     uploading = uploading,
+                    preview = photoPreview,
                     onPickPhoto = {
                         pickPhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                     },
@@ -501,17 +515,21 @@ private fun WizardHeader(step: Int, title: String, onBack: () -> Unit) {
 // ---------------------------------------------------------------------------------------------
 
 @Composable
-private fun DishStep(draft: PublishDraft, uploading: Boolean, onPickPhoto: () -> Unit) {
+private fun DishStep(draft: PublishDraft, uploading: Boolean, preview: ByteArray?, onPickPhoto: () -> Unit) {
     var showRules by remember { mutableStateOf(false) }
 
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        val previewImage = remember(preview) { preview?.let { BitmapFactory.decodeByteArray(it, 0, it.size)?.asImageBitmap() } }
         Box(
             Modifier
                 .size(104.dp)
+                .clip(RoundedCornerShape(16.dp))
                 .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
+            if (previewImage != null && !uploading) {
+                Image(previewImage, contentDescription = "Foto elegida", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
+            } else Text(
                 when {
                     uploading -> "Subiendo…"
                     draft.photoKey == null -> "1 foto"

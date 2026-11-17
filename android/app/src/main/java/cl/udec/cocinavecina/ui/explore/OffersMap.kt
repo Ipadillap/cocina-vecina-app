@@ -27,6 +27,7 @@ import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapLibreMapOptions
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
 import org.maplibre.android.style.expressions.Expression
@@ -59,7 +60,12 @@ fun OffersMap(
         return
     }
     val context = LocalContext.current
-    val mapView = remember { MapView(context).apply { onCreate(null) } }
+    val mapView =
+        remember {
+            // TextureView: con SurfaceView el mapa se dibuja mal dentro del LazyColumn y no respeta el recorte redondeado.
+            val options = MapLibreMapOptions.createFromAttributes(context, null).textureMode(true)
+            MapView(context, options).apply { onCreate(null) }
+        }
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
     var style by remember { mutableStateOf<Style?>(null) }
     val onClick by rememberUpdatedState(onOfferClick)
@@ -147,6 +153,8 @@ fun OffersMap(
     )
 
     LaunchedEffect(map, center, zoom) {
+        // En modo "elegir punto" la cámara no se mueve con cada toque; solo se mueve el punto.
+        if (onPointPicked != null) return@LaunchedEffect
         map?.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(center.lat, center.lon), zoom))
     }
 

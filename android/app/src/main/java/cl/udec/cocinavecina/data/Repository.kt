@@ -26,7 +26,7 @@ class Repository(
         try {
             Result.success(api.block())
         } catch (e: HttpException) {
-            if (e.code() == 401) session.clear()
+            if (e.code() == 401 && session.currentToken != null) session.clear()
             val body = e.response()?.errorBody()?.string()
             val problem = body?.let { runCatching { json.decodeFromString(Problem.serializer(), it) }.getOrNull() }
             Result.failure(ApiError.from(e.code(), problem))

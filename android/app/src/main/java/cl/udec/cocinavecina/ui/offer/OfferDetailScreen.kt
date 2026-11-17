@@ -47,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -60,7 +59,7 @@ import cl.udec.cocinavecina.ui.common.CocinaVecinaMark
 import cl.udec.cocinavecina.ui.common.Format
 import cl.udec.cocinavecina.ui.components.PortionStepper
 import cl.udec.cocinavecina.ui.theme.CocinaVecinaTheme
-import coil.compose.AsyncImage
+import cl.udec.cocinavecina.ui.common.RemoteImage
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -155,11 +154,11 @@ private fun OfferPhoto(
             .height(260.dp),
     ) {
         if (offer.photoUrl != null) {
-            AsyncImage(
+            RemoteImage(
                 model = offer.photoUrl,
                 contentDescription = offer.title,
-                contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
+                markSize = 72.dp,
             )
         } else {
             Box(

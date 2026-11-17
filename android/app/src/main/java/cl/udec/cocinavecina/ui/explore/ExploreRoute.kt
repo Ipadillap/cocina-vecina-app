@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
@@ -45,6 +46,10 @@ fun ExploreRoute(
         }
     LaunchedEffect(Unit) {
         viewModel.start(if (Locator.hasPermission(context)) Locator.lastKnown(context) else null)
+    }
+    LifecycleResumeEffect(viewModel) {
+        viewModel.refresh()
+        onPauseOrDispose {}
     }
     ExploreScreen(
         state = state,

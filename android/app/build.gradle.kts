@@ -28,8 +28,8 @@ android {
         applicationId = "cl.udec.cocinavecina"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         val apiUrl = setting("cocinavecina.apiUrl") ?: "http://10.0.2.2:8088"

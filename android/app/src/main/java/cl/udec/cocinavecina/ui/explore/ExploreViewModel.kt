@@ -63,10 +63,16 @@ class ExploreViewModel(
 
     fun onRetry() = search()
 
-    private fun search() {
+    /** Al volver a la pestaña: actualiza sin tapar la lista actual. */
+    fun refresh() {
+        if (!started || mutableState.value.isLoading) return
+        search(showLoading = false)
+    }
+
+    private fun search(showLoading: Boolean = true) {
         val current = mutableState.value
         searchJob?.cancel()
-        mutableState.update { it.copy(isLoading = true, error = null) }
+        if (showLoading) mutableState.update { it.copy(isLoading = true, error = null) }
         searchJob =
             viewModelScope.launch {
                 val result =

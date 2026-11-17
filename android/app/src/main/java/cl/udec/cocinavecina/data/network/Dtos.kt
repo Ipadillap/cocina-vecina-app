@@ -20,6 +20,8 @@ data class SignUpRequest(
     val role: String,
     val adult: Boolean,
     val acceptsTerms: Boolean,
+    val acceptsLocation: Boolean,
+    val acceptsNotifications: Boolean,
 )
 
 @Serializable
@@ -32,7 +34,11 @@ data class TokenResponse(
     val userId: Long,
     val role: String,
     val verified: Boolean,
+    val refreshToken: String? = null,
 )
+
+@Serializable
+data class RefreshRequest(val refreshToken: String)
 
 @Serializable
 data class AccountView(

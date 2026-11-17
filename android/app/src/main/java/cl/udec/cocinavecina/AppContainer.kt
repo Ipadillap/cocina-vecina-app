@@ -5,6 +5,7 @@ import cl.udec.cocinavecina.data.ApiProvider
 import cl.udec.cocinavecina.data.Repository
 import cl.udec.cocinavecina.data.network.CocinaVecinaApi
 import cl.udec.cocinavecina.data.network.RealtimeEvents
+import cl.udec.cocinavecina.data.network.TokenAuthenticator
 import cl.udec.cocinavecina.data.session.SessionStore
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -39,10 +40,13 @@ class AppContainer(context: Context) {
             .addInterceptor { chain ->
                 val token = session.currentToken
                 val request = chain.request()
+                // Un token vencido en /v1/auth/* haría que la API rechace el inicio de sesión con 401.
+                val isAuthCall = request.url.encodedPath.contains("/v1/auth/")
                 chain.proceed(
-                    if (token == null) request else request.newBuilder().header("Authorization", "Bearer $token").build(),
+                    if (token == null || isAuthCall) request else request.newBuilder().header("Authorization", "Bearer $token").build(),
                 )
             }
+            .authenticator(TokenAuthenticator(session, baseClient, BuildConfig.API_URL + "/", json))
             .build()
 
     private val remoteApi: CocinaVecinaApi =
@@ -57,5 +61,5 @@ class AppContainer(context: Context) {
 
     val repository = Repository(api, session, baseClient, authClient, json)
 
-    val events = RealtimeEvents(baseClient.newBuilder().pingInterval(30, TimeUnit.SECONDS).build(), session, json)
+    val events = RealtimeEvents(authClient.newBuilder().pingInterval(30, TimeUnit.SECONDS).build(), session, json)
 }

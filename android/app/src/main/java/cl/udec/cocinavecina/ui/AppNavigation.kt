@@ -1,5 +1,6 @@
 package cl.udec.cocinavecina.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -78,6 +79,7 @@ fun AppNavigation(container: AppContainer) {
 @Composable
 private fun AnonymousFlow(repository: Repository) {
     var signingUp by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = signingUp) { signingUp = false }
     if (signingUp) {
         SignUpRoute(
             repository = repository,

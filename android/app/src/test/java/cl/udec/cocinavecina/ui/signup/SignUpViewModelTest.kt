@@ -29,35 +29,106 @@ class SignUpViewModelTest {
     }
 
     private val sent = mutableListOf<SignUpRequest>()
+    private val signedIn = mutableListOf<Pair<String, String>>()
 
-    private fun filledViewModel(result: Result<SignUpResponse> = Result.success(SignUpResponse(10, "Revisa tu correo."))) =
-        SignUpViewModel(register = { request ->
+    private fun filledViewModel(
+        result: Result<SignUpResponse> = Result.success(SignUpResponse(10, "Revisa tu correo.")),
+        signInResult: Result<Unit> = Result.success(Unit),
+    ) = SignUpViewModel(
+        register = { request ->
             sent += request
             result
-        }).apply {
-            onDisplayNameChange("Ana")
-            onEmailChange("ana@correo.cl")
-            onPasswordChange("Clave#Larga2026")
-            onAdultChange(true)
-            onTermsChange(true)
-        }
+        },
+        signIn = { email, password ->
+            signedIn += email to password
+            signInResult
+        },
+    ).apply {
+        onDisplayNameChange("Ana")
+        onEmailChange("ana@correo.cl")
+        onPasswordChange("Clave#Larga2026")
+        onConfirmPasswordChange("Clave#Larga2026")
+        onAdultChange(true)
+        onTermsChange(true)
+    }
 
     @Test
-    fun successfulSignUpShowsMessage() {
+    fun successfulSignUpSignsInAndClearsForm() {
         val viewModel = filledViewModel()
         viewModel.onSignUpClick()
-        assertEquals("Revisa tu correo.", viewModel.uiState.value.successMessage)
+        assertEquals(listOf("ana@correo.cl" to "Clave#Larga2026"), signedIn)
+        assertEquals(SignUpUiState(), viewModel.uiState.value)
+    }
+
+    @Test
+    fun signInFailureAfterSignUpShowsAccountCreated() {
+        val viewModel = filledViewModel(signInResult = Result.failure(IllegalStateException("sin red")))
+        viewModel.onSignUpClick()
+        val state = viewModel.uiState.value
+        assertEquals(SignUpViewModel.ACCOUNT_CREATED, state.successMessage)
+        assertFalse(state.isLoading)
+        assertEquals("", state.password)
+    }
+
+    @Test
+    fun failedSignUpDoesNotSignIn() {
+        val viewModel = filledViewModel(Result.failure(ApiError(0, "Sin conexión con el servidor")))
+        viewModel.onSignUpClick()
+        assertTrue(signedIn.isEmpty())
+        assertNull(viewModel.uiState.value.successMessage)
+        assertEquals(SignUpViewModel.NO_CONNECTION, viewModel.uiState.value.formError)
+    }
+
+    @Test
+    fun differentPasswordsAreNotSent() {
+        val viewModel = filledViewModel()
+        viewModel.onConfirmPasswordChange("Clave#Larga2027")
+        viewModel.onSignUpClick()
+        assertTrue(sent.isEmpty())
+        assertTrue(signedIn.isEmpty())
+        assertEquals(SignUpViewModel.PASSWORDS_DIFFER, viewModel.uiState.value.confirmPasswordError)
+    }
+
+    @Test
+    fun missingConfirmationIsNotSent() {
+        val viewModel = SignUpViewModel(register = { Result.success(SignUpResponse(1, "")) }, signIn = { _, _ -> Result.success(Unit) })
+        viewModel.onPasswordChange("Clave#Larga2026")
+        assertTrue(viewModel.uiState.value.hasEmptyField)
+        viewModel.onConfirmPasswordChange("Clave#Larga2026")
+        viewModel.onDisplayNameChange("Ana")
+        viewModel.onEmailChange("ana@correo.cl")
+        assertFalse(viewModel.uiState.value.hasEmptyField)
+    }
+
+    @Test
+    fun editingPasswordClearsConfirmationError() {
+        val viewModel = filledViewModel()
+        viewModel.onConfirmPasswordChange("otra")
+        viewModel.onSignUpClick()
+        viewModel.onPasswordChange("Clave#Larga2026")
+        assertNull(viewModel.uiState.value.confirmPasswordError)
+    }
+
+    @Test
+    fun consentsAreSentToTheBackend() {
+        val viewModel = filledViewModel()
+        viewModel.onLocationChange(true)
+        viewModel.onSignUpClick()
+        assertTrue(sent.single().acceptsLocation)
+        assertFalse(sent.single().acceptsNotifications)
     }
 
     @Test
     fun resetClearsFormAndSuccess() {
-        val viewModel = filledViewModel()
+        val viewModel = filledViewModel(signInResult = Result.failure(IllegalStateException("sin red")))
         viewModel.onSignUpClick()
+        assertEquals(SignUpViewModel.ACCOUNT_CREATED, viewModel.uiState.value.successMessage)
         viewModel.reset()
         val state = viewModel.uiState.value
         assertNull(state.successMessage)
         assertEquals("", state.email)
         assertEquals("", state.password)
+        assertEquals("", state.confirmPassword)
         assertFalse(state.acceptsTerms)
     }
 

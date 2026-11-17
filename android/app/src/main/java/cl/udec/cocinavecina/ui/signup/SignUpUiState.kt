@@ -4,6 +4,7 @@ data class SignUpUiState(
     val displayName: String = "",
     val email: String = "",
     val password: String = "",
+    val confirmPassword: String = "",
     val wantsToSell: Boolean = false,
     val phone: String = "",
     val isAdult: Boolean = false,
@@ -14,13 +15,14 @@ data class SignUpUiState(
     val displayNameError: String? = null,
     val emailError: String? = null,
     val passwordError: String? = null,
+    val confirmPasswordError: String? = null,
     val phoneError: String? = null,
     val consentError: String? = null,
     val formError: String? = null,
     val successMessage: String? = null,
 ) {
     val hasEmptyField: Boolean
-        get() = displayName.isBlank() || email.isBlank() || password.isEmpty() || (wantsToSell && phone.isBlank())
+        get() = displayName.isBlank() || email.isBlank() || password.isEmpty() || confirmPassword.isEmpty() || (wantsToSell && phone.isBlank())
 
     val hasPendingConsent: Boolean
         get() = !isAdult || !acceptsTerms

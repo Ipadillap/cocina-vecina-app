@@ -15,6 +15,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class SignUpViewModel(
     private val register: suspend (SignUpRequest) -> Result<SignUpResponse>,
+    private val signIn: suspend (email: String, password: String) -> Result<Unit>,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = mutableState.asStateFlow()
@@ -28,7 +29,11 @@ class SignUpViewModel(
     }
 
     fun onPasswordChange(value: String) {
-        mutableState.update { it.copy(password = value, passwordError = null, formError = null) }
+        mutableState.update { it.copy(password = value, passwordError = null, confirmPasswordError = null, formError = null) }
+    }
+
+    fun onConfirmPasswordChange(value: String) {
+        mutableState.update { it.copy(confirmPassword = value, confirmPasswordError = null, formError = null) }
     }
 
     fun onWantsToSellChange(value: Boolean) {
@@ -68,6 +73,7 @@ class SignUpViewModel(
         val emailError = if (LoginViewModel.isValidEmail(email)) null else LoginViewModel.INVALID_EMAIL
         val phone = current.phone.trim()
         val passwordError = if (isStrongPassword(current.password)) null else WEAK_PASSWORD
+        val confirmPasswordError = if (current.confirmPassword == current.password) null else PASSWORDS_DIFFER
         val phoneError =
             when {
                 !current.wantsToSell -> null
@@ -76,12 +82,13 @@ class SignUpViewModel(
                 else -> null
             }
         val consentError = if (current.hasPendingConsent) CONSENT_REQUIRED else null
-        if (listOfNotNull(displayNameError, emailError, passwordError, phoneError, consentError).isNotEmpty()) {
+        if (listOfNotNull(displayNameError, emailError, passwordError, confirmPasswordError, phoneError, consentError).isNotEmpty()) {
             mutableState.update {
                 it.copy(
                     displayNameError = displayNameError,
                     emailError = emailError,
                     passwordError = passwordError,
+                    confirmPasswordError = confirmPasswordError,
                     phoneError = phoneError,
                     consentError = consentError,
                     formError = null,
@@ -95,6 +102,7 @@ class SignUpViewModel(
                 displayNameError = null,
                 emailError = null,
                 passwordError = null,
+                confirmPasswordError = null,
                 phoneError = null,
                 consentError = null,
                 formError = null,
@@ -110,6 +118,8 @@ class SignUpViewModel(
                     role = if (current.wantsToSell) SELLER_ROLE else BUYER_ROLE,
                     adult = current.isAdult,
                     acceptsTerms = current.acceptsTerms,
+                    acceptsLocation = current.locationEnabled,
+                    acceptsNotifications = current.notificationsEnabled,
                 )
             val result =
                 try {
@@ -119,12 +129,24 @@ class SignUpViewModel(
                 } catch (e: Exception) {
                     Result.failure(e)
                 }
+            if (result.isSuccess) {
+                val signedIn =
+                    try {
+                        signIn(email, current.password)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Result.failure(e)
+                    }
+                // Con la sesión iniciada esta pantalla desaparece, por eso el formulario (y la clave) se vacían.
+                mutableState.value = if (signedIn.isSuccess) SignUpUiState() else SignUpUiState(isLoading = false, successMessage = ACCOUNT_CREATED)
+                return@launch
+            }
             val error = result.exceptionOrNull()
             val rejected = (error as? ApiError)?.takeIf { it.code in REJECTED_CODES }
             mutableState.update {
                 it.copy(
                     isLoading = false,
-                    successMessage = result.getOrNull()?.message ?: if (result.isSuccess) VERIFY_EMAIL else null,
                     displayNameError = rejected?.fieldError(DISPLAY_NAME_FIELD),
                     emailError = rejected?.fieldError(EMAIL_FIELD),
                     passwordError = rejected?.fieldError(PASSWORD_FIELD),
@@ -157,7 +179,8 @@ class SignUpViewModel(
         const val INVALID_DATA = "Revisa los datos ingresados e inténtalo de nuevo."
         const val NO_CONNECTION = "Sin conexión. Revisa tu internet e inténtalo de nuevo."
         const val SERVER_ERROR = "Algo salió mal de nuestro lado. Inténtalo más tarde."
-        const val VERIFY_EMAIL = "Te enviamos un enlace para verificar tu correo."
+        const val ACCOUNT_CREATED = "Cuenta creada. Inicia sesión con tu correo y contraseña."
+        const val PASSWORDS_DIFFER = "Las contraseñas no coinciden"
         const val MIN_PASSWORD_LENGTH = 10
         private const val BUYER_ROLE = "BUYER"
         private const val SELLER_ROLE = "SELLER"
