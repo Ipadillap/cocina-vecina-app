@@ -40,6 +40,10 @@ public class ApiException extends RuntimeException {
         return of("Conflicto", HTTP.Response.CONFLICT, detail);
     }
 
+    public static ApiException invalid(String... detail) {
+        return of("Datos inválidos", HTTP.Response.UNPROCESSABLE_ENTITY, detail);
+    }
+
     public static ApiException rule(String rule, String... detail) {
         return of(rule, HTTP.Response.UNPROCESSABLE_ENTITY, detail);
     }

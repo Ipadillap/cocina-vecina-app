@@ -2,6 +2,7 @@ package cl.udec.cocinavecina.controller;
 
 import cl.udec.cocinavecina.components.CurrentUser;
 import cl.udec.cocinavecina.dto.AccountExport;
+import cl.udec.cocinavecina.dto.AccountView;
 import cl.udec.cocinavecina.service.AppUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +20,11 @@ public class AccountController {
 
     public AccountController(AppUserService appUserService) {
         this.appUserService = appUserService;
+    }
+
+    @GetMapping
+    public AccountView account(@AuthenticationPrincipal Jwt jwt) {
+        return appUserService.account(CurrentUser.id(jwt));
     }
 
     @GetMapping("/export")

@@ -36,7 +36,7 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(a -> a
-                .requestMatchers("/v1/auth/**", "/actuator/health", "/error").permitAll()
+                .requestMatchers("/v1/auth/**", "/actuator/health", "/error", "/photos/**").permitAll()
                 .anyRequest().authenticated())
             .oauth2ResourceServer(o -> o.jwt(j -> j.jwtAuthenticationConverter(rolesConverter())))
             .addFilterAfter(new SearchRateLimitFilter(searchLimit), BearerTokenAuthenticationFilter.class)

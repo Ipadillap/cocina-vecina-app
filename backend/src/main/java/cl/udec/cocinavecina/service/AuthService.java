@@ -61,14 +61,20 @@ public class AuthService {
         if (request.role() == Role.MODERATOR) {
             throw ApiException.forbidden("El rol moderador no se obtiene por registro");
         }
+        String phone = request.phone() == null || request.phone().isBlank()
+            ? null
+            : request.phone().replaceAll("\\s", "");
+        if (request.role() == Role.SELLER && phone == null) {
+            throw ApiException.invalid("phone: El teléfono es obligatorio para vender.");
+        }
         String email = request.email().trim().toLowerCase();
         String displayName = request.displayName().trim();
         List<String> conflicts = new ArrayList<>();
         if (users.existsByEmail(email)) {
-            conflicts.add("Ya existe una cuenta con ese correo electrónico");
+            conflicts.add("email: Ya existe una cuenta con el correo electrónico.");
         }
         if (users.existsByDisplayNameIgnoreCase(displayName)) {
-            conflicts.add("Ya existe una cuenta con ese nombre de usuario");
+            conflicts.add("displayName: Ya existe una cuenta con ese nombre de usuario.");
         }
         if (!conflicts.isEmpty()) {
             throw ApiException.conflict(conflicts.toArray(String[]::new));
@@ -79,7 +85,7 @@ public class AuthService {
             .email(email)
             .displayName(displayName)
             .passwordHash(encoder.encode(request.password()))
-            .encryptedPhone(encryptor.encrypt(request.phone().replaceAll("\\s", "")))
+            .encryptedPhone(encryptor.encrypt(phone))
             .role(request.role())
             .adultDeclared(request.adult())
             .status(AccountStatus.PENDING_VERIFICATION)

@@ -2,10 +2,13 @@ package cl.udec.cocinavecina.service;
 
 import cl.udec.cocinavecina.components.FieldEncryptor;
 import cl.udec.cocinavecina.dto.AccountExport;
+import cl.udec.cocinavecina.dto.AccountView;
 import cl.udec.cocinavecina.exception.ApiException;
 import cl.udec.cocinavecina.model.AccountStatus;
 import cl.udec.cocinavecina.model.AppUser;
+import cl.udec.cocinavecina.model.Consent;
 import cl.udec.cocinavecina.repository.AppUserRepository;
+import cl.udec.cocinavecina.repository.ConsentRespository;
 import cl.udec.cocinavecina.repository.OfferRepository;
 import cl.udec.cocinavecina.repository.OrdersRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ public class AppUserService {
     private final AppUserRepository users;
     private final OfferRepository offers;
     private final OrdersRepository orders;
+    private final ConsentRespository consents;
     private final OfferService offerService;
     private final FieldEncryptor encryptor;
     private final AuditService audit;
@@ -25,15 +29,33 @@ public class AppUserService {
     public AppUserService(AppUserRepository users,
                           OfferRepository offers,
                           OrdersRepository orders,
+                          ConsentRespository consents,
                           OfferService offerService,
                           FieldEncryptor encryptor,
                           AuditService audit) {
         this.users = users;
         this.offers = offers;
         this.orders = orders;
+        this.consents = consents;
         this.offerService = offerService;
         this.encryptor = encryptor;
         this.audit = audit;
+    }
+
+    @Transactional(readOnly = true)
+    public AccountView account(Long userId) {
+        AppUser user = get(userId);
+        Consent terms = consents.findFirstByUser_IdAndTypeAndRevokedAtIsNullOrderByGrantedAtDesc(userId, "TERMS")
+            .orElse(null);
+        return new AccountView(
+            user.getId(),
+            user.getEmail(),
+            user.getDisplayName(),
+            encryptor.decrypt(user.getEncryptedPhone()),
+            user.getRole(),
+            user.getStatus() == AccountStatus.ACTIVE,
+            null,
+            terms == null ? null : terms.getGrantedAt().toInstant());
     }
 
     @Transactional(readOnly = true)

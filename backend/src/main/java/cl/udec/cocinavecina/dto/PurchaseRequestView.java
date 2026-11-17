@@ -16,6 +16,7 @@ public record PurchaseRequestView(
     PurchaseRequestStatus status,
     String closeReason,
     Long orderId,
-    List<ProposalView> proposals
+    List<ProposalView> proposals,
+    String buyerName
 ) {
 }

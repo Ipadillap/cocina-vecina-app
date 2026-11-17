@@ -1,5 +1,8 @@
 package cl.udec.cocinavecina.service;
 
+import cl.udec.cocinavecina.components.RealtimeEvent;
+import cl.udec.cocinavecina.dto.UserEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import cl.udec.cocinavecina.dto.NewPurchaseRequest;
 import cl.udec.cocinavecina.dto.ProposalView;
 import cl.udec.cocinavecina.dto.PurchaseRequestView;
@@ -44,6 +47,7 @@ public class NegotiationService {
     private final OrdersRepository orders;
     private final AppUserRepository users;
     private final AuditService audit;
+    private final ApplicationEventPublisher events;
 
     public NegotiationService(
         PurchaseRequestRepository requests,
@@ -51,7 +55,8 @@ public class NegotiationService {
         OfferRepository offers,
         OrdersRepository orders,
         AppUserRepository users,
-        AuditService audit
+        AuditService audit,
+        ApplicationEventPublisher events
     ) {
         this.requests = requests;
         this.proposals = proposals;
@@ -59,6 +64,7 @@ public class NegotiationService {
         this.orders = orders;
         this.users = users;
         this.audit = audit;
+        this.events = events;
     }
 
 
@@ -96,6 +102,7 @@ public class NegotiationService {
             .build());
         addProposal(request, Party.BUYER, unitPrice, now);
         audit.log(buyerId, "PURCHASE_REQUEST_SENT", "purchase_request", request.getId());
+        notifyParties(request, "PROPOSAL_RECEIVED");
         return view(request);
     }
 
@@ -133,6 +140,7 @@ public class NegotiationService {
         request.setRounds(request.getRounds() + 1);
         move(request, Party.SELLER, unitPrice);
         audit.log(sellerId, "COUNTEROFFER_SENT", "purchase_request", requestId);
+        notifyParties(request, "COUNTEROFFER_RECEIVED");
         return view(request);
     }
 
@@ -150,6 +158,7 @@ public class NegotiationService {
 
         move(request, Party.BUYER, unitPrice);
         audit.log(buyerId, "PROPOSAL_SENT", "purchase_request", requestId);
+        notifyParties(request, "PROPOSAL_RECEIVED");
         return view(request);
     }
 
@@ -170,6 +179,7 @@ public class NegotiationService {
         if (offers.reserve(offer.getId(), request.getPortions()) == 0) {
             close(request, PurchaseRequestStatus.EXPIRED, "Stock agotado", now);
             audit.log(userId, "PURCHASE_REQUEST_EXPIRED", "purchase_request", requestId, "Stock agotado");
+            notifyParties(request, "REQUEST_EXPIRED");
             throw ApiException.conflict("No quedan porciones suficientes; la solicitud expiró");
         }
 
@@ -189,6 +199,10 @@ public class NegotiationService {
         close(request, PurchaseRequestStatus.ACCEPTED, null, now);
         audit.log(userId, "PURCHASE_REQUEST_ACCEPTED", "purchase_request", requestId);
         audit.log(userId, "ORDER_CREATED", "order", order.getId());
+        notifyParties(request, "REQUEST_ACCEPTED");
+        events.publishEvent(new RealtimeEvent(
+            List.of(request.getBuyer().getId(), request.getSeller().getId()),
+            new UserEvent("ORDER_CREATED", "order", order.getId(), order.getStatus())));
         return view(request);
     }
 
@@ -201,6 +215,7 @@ public class NegotiationService {
         final String reason = party == Party.SELLER ? "Rechazada por el vendedor" : "Rechazada por el comprador";
         close(request, PurchaseRequestStatus.REJECTED, reason, OffsetDateTime.now());
         audit.log(userId, "PURCHASE_REQUEST_REJECTED", "purchase_request", requestId);
+        notifyParties(request, "REQUEST_REJECTED");
         return view(request);
     }
 
@@ -214,7 +229,14 @@ public class NegotiationService {
         requireOpen(request);
         close(request, PurchaseRequestStatus.CANCELLED, "Retirada por el comprador", OffsetDateTime.now());
         audit.log(buyerId, "PURCHASE_REQUEST_WITHDRAWN", "purchase_request", requestId);
+        notifyParties(request, "REQUEST_WITHDRAWN");
         return view(request);
+    }
+
+    private void notifyParties(PurchaseRequest request, String type) {
+        events.publishEvent(new RealtimeEvent(
+            List.of(request.getBuyer().getId(), request.getSeller().getId()),
+            new UserEvent(type, "purchase_request", request.getId(), request.getStatus())));
     }
 
     private PurchaseRequest lock(Long requestId) {
@@ -329,7 +351,8 @@ public class NegotiationService {
             PurchaseRequestStatus.valueOf(r.getStatus()),
             r.getCloseReason(),
             orderId,
-            history
+            history,
+            r.getBuyer().getDisplayName()
         );
     }
 

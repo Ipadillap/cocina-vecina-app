@@ -13,6 +13,7 @@ public record OrderView(
     Instant acceptedAt,
     Instant readyAt,
     Instant deliveredAt,
-    Instant windowEnd
+    Instant windowEnd,
+    String buyerName
 ) {
 }

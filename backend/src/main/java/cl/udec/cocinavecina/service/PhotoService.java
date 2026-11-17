@@ -23,14 +23,9 @@ public class PhotoService {
     );
 
     private final Path directory;
-    private final String publicUrl;
 
-    public PhotoService(
-        @Value("${cocinavecina.photos.directory}") String directory,
-        @Value("${cocinavecina.public-url}") String publicUrl
-    ) {
+    public PhotoService(@Value("${cocinavecina.photos.directory}") String directory) {
         this.directory = Path.of(directory).toAbsolutePath().normalize();
-        this.publicUrl = publicUrl.endsWith("/") ? publicUrl.substring(0, publicUrl.length() - 1) : publicUrl;
     }
 
     public UploadUrl prepareUpload(Long userId, String contentType) {
@@ -39,7 +34,7 @@ public class PhotoService {
             throw ApiException.rule("RF-2", "Solo se admite JPEG o WebP");
         }
         final String key = userId + "-" + UUID.randomUUID() + "." + extension;
-        return new UploadUrl(key, publicUrl + "/v1/photos/local/" + key, "PUT", contentType);
+        return new UploadUrl(key, "/v1/photos/local/" + key, "PUT", contentType);
     }
 
     public void storeLocal(Long userId, String key, String contentType, InputStream body) {

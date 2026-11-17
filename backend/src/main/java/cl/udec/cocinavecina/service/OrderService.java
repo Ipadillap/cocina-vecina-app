@@ -1,5 +1,8 @@
 package cl.udec.cocinavecina.service;
 
+import cl.udec.cocinavecina.components.RealtimeEvent;
+import cl.udec.cocinavecina.dto.UserEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import cl.udec.cocinavecina.components.FieldEncryptor;
 import cl.udec.cocinavecina.dto.CodeView;
 import cl.udec.cocinavecina.dto.OrderView;
@@ -35,6 +38,7 @@ public class OrderService {
     private final OfferRepository offers;
     private final FieldEncryptor encryptor;
     private final AuditService audit;
+    private final ApplicationEventPublisher events;
     private final byte[] codeKey;
     private final SecureRandom random = new SecureRandom();
 
@@ -43,12 +47,14 @@ public class OrderService {
         OfferRepository offers,
         FieldEncryptor encryptor,
         AuditService audit,
+        ApplicationEventPublisher events,
         @Value("${cocinavecina.code.hmac-key}") String codeKey
     ) {
         this.orders = orders;
         this.offers = offers;
         this.encryptor = encryptor;
         this.audit = audit;
+        this.events = events;
         this.codeKey = codeKey.getBytes(StandardCharsets.UTF_8);
     }
 
@@ -122,6 +128,7 @@ public class OrderService {
         order.setStatus(OrderStatus.READY_FOR_PICKUP.name());
         order.setReadyAt(OffsetDateTime.now());
         audit.log(userId, "ORDER_READY", "order", orderId);
+        notifyParties(order, "ORDER_READY");
         return toView(order);
     }
 
@@ -167,6 +174,7 @@ public class OrderService {
         order.setDeliveredAt(OffsetDateTime.now());
         order.setCodeHmac(null);
         audit.log(userId, "ORDER_DELIVERED", "order", orderId);
+        notifyParties(order, "ORDER_DELIVERED");
         return toView(order);
     }
 
@@ -184,7 +192,14 @@ public class OrderService {
         order.setCodeHmac(null);
         offers.restock(order.getOffer().getId(), order.getPortions());
         audit.log(userId, "ORDER_CANCELLED", "order", orderId, reason.trim());
+        notifyParties(order, "ORDER_CANCELLED");
         return toView(order);
+    }
+
+    private void notifyParties(Order order, String type) {
+        events.publishEvent(new RealtimeEvent(
+            List.of(order.getBuyer().getId(), order.getSeller().getId()),
+            new UserEvent(type, "order", order.getId(), order.getStatus())));
     }
 
     private Order find(Long orderId) {
@@ -235,7 +250,8 @@ public class OrderService {
             o.getAcceptedAt().toInstant(),
             o.getReadyAt() == null ? null : o.getReadyAt().toInstant(),
             o.getDeliveredAt() == null ? null : o.getDeliveredAt().toInstant(),
-            o.getWindowEnd().toInstant()
+            o.getWindowEnd().toInstant(),
+            o.getBuyer().getDisplayName()
         );
     }
 }
