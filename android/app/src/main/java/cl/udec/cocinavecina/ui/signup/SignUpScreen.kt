@@ -64,6 +64,8 @@ fun SignUpScreen(
     onDisplayNameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
+    onWantsToSellChange: (Boolean) -> Unit,
+    onPhoneChange: (String) -> Unit,
     onAdultChange: (Boolean) -> Unit,
     onTermsChange: (Boolean) -> Unit,
     onLocationChange: (Boolean) -> Unit,
@@ -123,13 +125,33 @@ fun SignUpScreen(
                 label = "Contraseña",
                 value = state.password,
                 onValueChange = onPasswordChange,
-                placeholder = "Mínimo ${SignUpViewModel.MIN_PASSWORD_LENGTH} caracteres",
+                placeholder = "Mínimo ${SignUpViewModel.MIN_PASSWORD_LENGTH}, con mayúscula, número y símbolo",
                 errorText = state.passwordError,
                 keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done,
+                imeAction = if (state.wantsToSell) ImeAction.Next else ImeAction.Done,
                 keyboardActions = KeyboardActions(onDone = { onSignUpClick() }),
                 visualTransformation = PasswordVisualTransformation(),
             )
+            PreferenceCard {
+                SwitchPreferenceRow(
+                    title = "También quiero vender",
+                    subtitle = "Para publicar porciones. Te pediremos un celular de contacto",
+                    checked = state.wantsToSell,
+                    onCheckedChange = onWantsToSellChange,
+                )
+            }
+            if (state.wantsToSell) {
+                LabeledTextField(
+                    label = "Celular",
+                    value = state.phone,
+                    onValueChange = onPhoneChange,
+                    placeholder = "+56 9 1234 5678",
+                    errorText = state.phoneError,
+                    keyboardType = KeyboardType.Phone,
+                    imeAction = ImeAction.Done,
+                    keyboardActions = KeyboardActions(onDone = { onSignUpClick() }),
+                )
+            }
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 PreferenceCard {
                     ConsentRow(
@@ -309,7 +331,7 @@ private fun SignUpBottomBar(
 @Composable
 private fun SignUpScreenPreview() {
     CocinaVecinaTheme {
-        SignUpScreen(SignUpUiState(), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+        SignUpScreen(SignUpUiState(), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }
 
@@ -323,6 +345,8 @@ private fun SignUpScreenFilledPreview() {
                     displayName = "Ana",
                     email = "correo-invalido",
                     password = "secreto123",
+                    wantsToSell = true,
+                    phoneError = SignUpViewModel.PHONE_REQUIRED,
                     isAdult = true,
                     locationEnabled = true,
                     emailError = LoginViewModel.INVALID_EMAIL,
@@ -332,6 +356,8 @@ private fun SignUpScreenFilledPreview() {
             onDisplayNameChange = {},
             onEmailChange = {},
             onPasswordChange = {},
+            onWantsToSellChange = {},
+            onPhoneChange = {},
             onAdultChange = {},
             onTermsChange = {},
             onLocationChange = {},

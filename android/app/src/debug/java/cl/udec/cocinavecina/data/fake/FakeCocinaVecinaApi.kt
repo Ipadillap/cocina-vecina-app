@@ -155,7 +155,7 @@ class FakeCocinaVecinaApi(
     override suspend fun register(s: SignUpRequest): SignUpResponse =
         respond {
             if (!s.adult || !s.acceptsTerms) fail(422, "Debes ser mayor de edad y aceptar los términos.")
-            if (users.any { it.email.equals(s.email.trim(), ignoreCase = true) }) fail(409, "Ya existe una cuenta con ese correo.")
+            if (users.any { it.email.equals(s.email.trim(), ignoreCase = true) }) fail(409, "email: Ya existe una cuenta con ese correo.")
             if (s.role !in listOf(BUYER, SELLER)) fail(400, "Rol no permitido.")
             val user =
                 FakeUser(
@@ -693,7 +693,7 @@ class FakeCocinaVecinaApi(
         code: Int,
         detail: String,
     ): Nothing {
-        val body = Json.encodeToString(Problem.serializer(), Problem(detail = detail, status = code))
+        val body = Json.encodeToString(Problem.serializer(), Problem(status = code, detail = listOf(detail)))
         throw HttpException(Response.error<Any>(code, body.toResponseBody(PROBLEM_JSON)))
     }
 

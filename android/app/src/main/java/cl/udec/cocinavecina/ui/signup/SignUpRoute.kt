@@ -42,6 +42,8 @@ fun SignUpRoute(
         onDisplayNameChange = viewModel::onDisplayNameChange,
         onEmailChange = viewModel::onEmailChange,
         onPasswordChange = viewModel::onPasswordChange,
+        onWantsToSellChange = viewModel::onWantsToSellChange,
+        onPhoneChange = viewModel::onPhoneChange,
         onAdultChange = viewModel::onAdultChange,
         onTermsChange = viewModel::onTermsChange,
         onLocationChange = { enabled ->

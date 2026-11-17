@@ -28,8 +28,8 @@ class Repository(
         } catch (e: HttpException) {
             if (e.code() == 401) session.clear()
             val body = e.response()?.errorBody()?.string()
-            val detail = body?.let { runCatching { json.decodeFromString(Problem.serializer(), it).detail }.getOrNull() }
-            Result.failure(ApiError(e.code(), detail ?: "Error ${e.code()}"))
+            val problem = body?.let { runCatching { json.decodeFromString(Problem.serializer(), it) }.getOrNull() }
+            Result.failure(ApiError.from(e.code(), problem))
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -58,4 +58,32 @@ class Repository(
             }
 }
 
-class ApiError(val code: Int, override val message: String) : Exception(message)
+class ApiError(
+    val code: Int,
+    override val message: String,
+    val details: List<String> = emptyList(),
+) : Exception(message) {
+    fun fieldError(field: String): String? =
+        details.firstOrNull { it.startsWith("$field: ") }?.removePrefix("$field: ")
+
+    fun otherErrors(vararg fields: String): List<String> =
+        details
+            .filterNot { detail -> fields.any { detail.startsWith("$it: ") } }
+            .map { it.replaceFirst(FIELD_PREFIX, "") }
+
+    companion object {
+        private val FIELD_PREFIX = Regex("^[A-Za-z][A-Za-z0-9_.]*: ")
+
+        fun from(
+            code: Int,
+            problem: Problem?,
+        ): ApiError {
+            val details = problem?.detail.orEmpty().filter { it.isNotBlank() }
+            val message =
+                details
+                    .joinToString(" ") { it.replaceFirst(FIELD_PREFIX, "") }
+                    .ifBlank { problem?.title ?: "Error $code" }
+            return ApiError(code, message, details)
+        }
+    }
+}

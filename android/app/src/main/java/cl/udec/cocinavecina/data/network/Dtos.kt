@@ -1,6 +1,12 @@
 package cl.udec.cocinavecina.data.network
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonTransformingSerializer
 
 @Serializable
 data class LoginRequest(val email: String, val password: String)
@@ -198,4 +204,18 @@ data class DeviceRegistration(val pushToken: String)
 data class UserEvent(val type: String, val entity: String, val entityId: Long, val status: String)
 
 @Serializable
-data class Problem(val detail: String? = null, val rule: String? = null, val status: Int? = null)
+data class Problem(
+    val title: String? = null,
+    val status: Int? = null,
+    @Serializable(with = ProblemDetailSerializer::class)
+    val detail: List<String> = emptyList(),
+)
+
+object ProblemDetailSerializer : JsonTransformingSerializer<List<String>>(ListSerializer(String.serializer())) {
+    override fun transformDeserialize(element: JsonElement): JsonElement =
+        when (element) {
+            is JsonArray -> element
+            JsonNull -> JsonArray(emptyList())
+            else -> JsonArray(listOf(element))
+        }
+}

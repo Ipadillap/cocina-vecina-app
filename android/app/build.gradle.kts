@@ -16,10 +16,9 @@ val localProperties =
     Properties().apply {
         rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
     }
-val useFakeApi =
-    providers.gradleProperty("cocinavecina.useFakeApi").orNull
-        ?: localProperties.getProperty("cocinavecina.useFakeApi")
-        ?: "false"
+fun setting(name: String): String? = localProperties.getProperty(name) ?: providers.gradleProperty(name).orNull
+
+val useFakeApi = setting("cocinavecina.useFakeApi") ?: "false"
 
 android {
     namespace = "cl.udec.cocinavecina"
@@ -33,7 +32,7 @@ android {
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val apiUrl = providers.gradleProperty("cocinavecina.apiUrl").getOrElse("http://10.0.2.2:8080")
+        val apiUrl = setting("cocinavecina.apiUrl") ?: "http://10.0.2.2:8088"
         buildConfigField("String", "API_URL", "\"$apiUrl\"")
         buildConfigField("String", "MAP_STYLE", "\"https://tiles.openfreemap.org/styles/liberty\"")
         // Release siempre usa la API real; debug lo sobrescribe más abajo con cocinavecina.useFakeApi.
