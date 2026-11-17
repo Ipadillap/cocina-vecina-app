@@ -36,6 +36,4 @@ public class VerificationToken {
 
     @Column(name = "used_at")
     private OffsetDateTime usedAt;
-
-
 }

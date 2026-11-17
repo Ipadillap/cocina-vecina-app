@@ -16,4 +16,5 @@ public record NearbyOfferView(
     double approxLatitude,
     double approxLongitude,
     long distanceMeters
-) {}
+) {
+}

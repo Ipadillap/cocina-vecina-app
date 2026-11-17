@@ -5,4 +5,5 @@ public record UserEvent(
     String entity,
     long entityId,
     String status
-) {}
+) {
+}

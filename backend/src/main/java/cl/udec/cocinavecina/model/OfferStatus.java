@@ -6,5 +6,5 @@ public enum OfferStatus {
     EXPIRED,
     CLOSED,
     HIDDEN,
-    WITHDRAWN
+    WITHDRAWN,
 }

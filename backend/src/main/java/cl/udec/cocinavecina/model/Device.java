@@ -38,6 +38,4 @@ public class Device {
     @NotNull
     @Column(name = "registered_at", nullable = false)
     private OffsetDateTime registeredAt;
-
-
 }

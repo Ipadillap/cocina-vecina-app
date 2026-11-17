@@ -13,4 +13,5 @@ public record AccountView(
     boolean verified,
     String termsVersion,
     Instant termsAcceptedAt
-) {}
+) {
+}

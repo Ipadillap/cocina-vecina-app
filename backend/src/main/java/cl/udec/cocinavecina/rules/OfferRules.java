@@ -9,12 +9,12 @@ import java.time.Instant;
 import java.util.Set;
 
 public final class OfferRules {
-
     public static final Duration MIN_DURATION = Duration.ofMinutes(20);
     public static final Duration MAX_SINCE_PREPARATION = Duration.ofMinutes(210);
     public static final Set<Integer> RADII = Set.of(500, 1500, 3000, 5000);
 
-    private OfferRules() {}
+    private OfferRules() {
+    }
 
     public static void validateTimes(Instant now, Instant preparedAt, Instant expiresAt) {
         if (preparedAt.isAfter(now)) {
@@ -24,7 +24,10 @@ public final class OfferRules {
             throw ApiException.rule("RB-1", "La oferta debe durar al menos 20 minutos");
         }
         if (expiresAt.isAfter(preparedAt.plus(MAX_SINCE_PREPARATION))) {
-            throw ApiException.rule("RB-1", "La oferta debe terminar a más tardar 3 h 30 min después de la preparación");
+            throw ApiException.rule(
+                "RB-1",
+                "La oferta debe terminar a más tardar 3 h 30 min después de la preparación"
+            );
         }
     }
 

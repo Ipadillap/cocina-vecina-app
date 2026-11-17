@@ -10,5 +10,5 @@ public enum Allergen {
     FISH,
     SHELLFISH,
     SESAME,
-    NONE_KNOWN
+    NONE_KNOWN,
 }

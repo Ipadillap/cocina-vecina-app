@@ -25,14 +25,15 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
-
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
     @Bean
     @ConditionalOnWebApplication
-    SecurityFilterChain api(HttpSecurity http,
-                            @Value("${cocinavecina.search.limit-per-minute}") int searchLimit) throws Exception {
+    SecurityFilterChain api(
+        HttpSecurity http,
+        @Value("${cocinavecina.search.limit-per-minute}") int searchLimit
+    ) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(a -> a
@@ -44,21 +45,21 @@ public class SecurityConfig {
     }
 
     @Bean
-    JwtEncoder jwtEncoder(@Value("${cocinavecina.jwt.secret}") String secret){
+    JwtEncoder jwtEncoder(@Value("${cocinavecina.jwt.secret}") String secret) {
         return new NimbusJwtEncoder(new ImmutableSecret<>(key(secret)));
     }
 
     @Bean
-    JwtDecoder jwtDecoder(@Value("${cocinavecina.jwt.secret}") String secret){
+    JwtDecoder jwtDecoder(@Value("${cocinavecina.jwt.secret}") String secret) {
         return NimbusJwtDecoder.withSecretKey(key(secret)).macAlgorithm(MacAlgorithm.HS256).build();
     }
-
 
     @Bean
     PasswordEncoder passwordEncoder() {
         return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
-    private static JwtAuthenticationConverter rolesConverter(){
+
+    private static JwtAuthenticationConverter rolesConverter() {
         JwtGrantedAuthoritiesConverter roles = new JwtGrantedAuthoritiesConverter();
         roles.setAuthoritiesClaimName("roles");
         roles.setAuthorityPrefix("ROLE_");
@@ -66,7 +67,8 @@ public class SecurityConfig {
         converter.setJwtGrantedAuthoritiesConverter(roles);
         return converter;
     }
-    private static SecretKey key(String secret){
+
+    private static SecretKey key(String secret) {
         return new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
     }
 }

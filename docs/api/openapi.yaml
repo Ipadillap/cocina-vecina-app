@@ -82,6 +82,73 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/TokenResponse" }
         "403": { $ref: "#/components/responses/Problem" }
+  /v1/auth/refresh:
+    post:
+      tags: [accounts]
+      operationId: refresh
+      summary: Renovar la sesión con el token de renovación rotativo de 30 días (RNF-S-1)
+      description: >
+        Cada renovación invalida el token usado y entrega uno nuevo. Si se reutiliza un token ya usado, se
+        revoca toda la familia de tokens de esa sesión.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "200":
+          description: Nuevo token de acceso y nuevo token de renovación
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenResponse" }
+        "401": { $ref: "#/components/responses/Problem" }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/auth/logout:
+    post:
+      tags: [accounts]
+      operationId: logout
+      summary: Cerrar sesión y revocar el token de renovación
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "204": { description: Sesión cerrada }
+  /v1/account/consents:
+    get:
+      tags: [accounts]
+      operationId: myConsents
+      summary: Estado de los consentimientos de términos, ubicación y notificaciones (RB-9)
+      responses:
+        "200":
+          description: Un elemento por tipo de consentimiento
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/ConsentView" } }
+        "401": { $ref: "#/components/responses/Problem" }
+  /v1/account/consents/{type}:
+    put:
+      tags: [accounts]
+      operationId: setConsent
+      summary: Otorgar o revocar un consentimiento (RB-9)
+      description: Los términos no se pueden revocar. Revocar NOTIFICATIONS elimina los dispositivos registrados.
+      parameters:
+        - { name: type, in: path, required: true, schema: { $ref: "#/components/schemas/ConsentType" } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ConsentChange" }
+      responses:
+        "200":
+          description: Estado resultante
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ConsentView" }
+        "422": { $ref: "#/components/responses/Problem" }
   /v1/account/export:
     get:
       tags: [accounts]
@@ -97,7 +164,57 @@ paths:
       summary: Eliminar la cuenta (RF-13)
       responses:
         "204": { description: Datos suprimidos o anonimizados }
+        "202": { description: Hay pedidos en curso; la eliminación se ejecuta sola al terminar o cancelarse }
+  /v1/seller/history:
+    get:
+      tags: [orders]
+      operationId: sellerHistory
+      summary: Historial del vendedor, pedidos entregados e ingresos por mes (RF-12)
+      parameters:
+        - { name: month, in: query, required: false, description: "yyyy-MM, por defecto el mes actual en America/Santiago", schema: { type: string, pattern: "^[0-9]{4}-[0-9]{2}$" } }
+      responses:
+        "200":
+          description: Resumen del mes
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SalesHistory" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "403": { $ref: "#/components/responses/Problem" }
+  /v1/orders/{id}/rating:
+    post:
+      tags: [orders]
+      operationId: rateOrder
+      summary: Calificar a la contraparte de un pedido Entregado, dentro de 7 días (RF-14)
+      parameters:
+        - { $ref: "#/components/parameters/Id" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NewRating" }
+      responses:
+        "201":
+          description: Calificación registrada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RatingView" }
+        "403": { $ref: "#/components/responses/Problem" }
         "409": { $ref: "#/components/responses/Problem" }
+        "422": { $ref: "#/components/responses/Problem" }
+  /v1/users/{id}/rating:
+    get:
+      tags: [orders]
+      operationId: userRating
+      summary: Promedio y cantidad de calificaciones recibidas (RF-14)
+      parameters:
+        - { $ref: "#/components/parameters/Id" }
+      responses:
+        "200":
+          description: Resumen
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RatingSummary" }
+        "404": { $ref: "#/components/responses/Problem" }
   /v1/pickup-points:
     get:
       tags: [offers]
@@ -578,6 +695,8 @@ components:
         role: { type: string, enum: [BUYER, SELLER] }
         adult: { type: boolean }
         acceptsTerms: { type: boolean }
+        acceptsLocation: { type: boolean, default: false }
+        acceptsNotifications: { type: boolean, default: false }
     SignUpResponse:
       type: object
       properties:
@@ -597,6 +716,72 @@ components:
         userId: { type: integer, format: int64 }
         role: { $ref: "#/components/schemas/Role" }
         verified: { type: boolean }
+        refreshToken: { type: string }
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string }
+    ConsentType:
+      type: string
+      enum: [TERMS, LOCATION, NOTIFICATIONS]
+    ConsentChange:
+      type: object
+      required: [granted]
+      properties:
+        granted: { type: boolean }
+    ConsentView:
+      type: object
+      properties:
+        type: { $ref: "#/components/schemas/ConsentType" }
+        granted: { type: boolean }
+        grantedAt: { type: string, format: date-time, nullable: true }
+        revokedAt: { type: string, format: date-time, nullable: true }
+        textVersion: { type: string, nullable: true }
+    NewRating:
+      type: object
+      required: [score]
+      properties:
+        score: { type: integer, minimum: 1, maximum: 5 }
+    RatingView:
+      type: object
+      properties:
+        orderId: { type: integer, format: int64 }
+        score: { type: integer }
+        createdAt: { type: string, format: date-time }
+    RatingSummary:
+      type: object
+      properties:
+        userId: { type: integer, format: int64 }
+        average: { type: number, nullable: true }
+        count: { type: integer, format: int64 }
+    SalesHistory:
+      type: object
+      properties:
+        month: { type: string }
+        offersPublished: { type: integer }
+        deliveredOrders: { type: integer }
+        totalIncome: { type: integer, format: int64 }
+        days:
+          type: array
+          items:
+            type: object
+            properties:
+              date: { type: string, format: date }
+              orders: { type: integer }
+              income: { type: integer, format: int64 }
+        sales:
+          type: array
+          items:
+            type: object
+            properties:
+              orderId: { type: integer, format: int64 }
+              offerId: { type: integer, format: int64 }
+              offerTitle: { type: string }
+              unitPrice: { type: integer }
+              portions: { type: integer }
+              total: { type: integer, format: int64 }
+              deliveredAt: { type: string, format: date-time }
     NewPickupPoint:
       type: object
       required: [alias, address]

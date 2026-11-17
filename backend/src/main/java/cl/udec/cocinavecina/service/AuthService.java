@@ -7,11 +7,9 @@ import cl.udec.cocinavecina.dto.Auth;
 import cl.udec.cocinavecina.exception.ApiException;
 import cl.udec.cocinavecina.model.AccountStatus;
 import cl.udec.cocinavecina.model.AppUser;
-import cl.udec.cocinavecina.model.Consent;
 import cl.udec.cocinavecina.model.Role;
 import cl.udec.cocinavecina.model.VerificationToken;
 import cl.udec.cocinavecina.repository.AppUserRepository;
-import cl.udec.cocinavecina.repository.ConsentRespository;
 import cl.udec.cocinavecina.repository.VerificationTokenRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +28,8 @@ public class AuthService {
 
     private final AppUserRepository users;
     private final VerificationTokenRepository verificationTokens;
-    private final ConsentRespository consents;
+    private final ConsentService consentService;
+    private final RefreshTokenService refreshTokens;
     private final PasswordEncoder encoder;
     private final FieldEncryptor encryptor;
     private final TokenIssuer tokenIssuer;
@@ -38,17 +37,21 @@ public class AuthService {
     private final AuditService audit;
     private final SecureRandom random = new SecureRandom();
 
-    public AuthService(AppUserRepository users,
-                       VerificationTokenRepository verificationTokens,
-                       ConsentRespository consents,
-                       PasswordEncoder encoder,
-                       FieldEncryptor encryptor,
-                       TokenIssuer tokenIssuer,
-                       VerificationMailer mailer,
-                       AuditService audit) {
+    public AuthService(
+        AppUserRepository users,
+        VerificationTokenRepository verificationTokens,
+        ConsentService consentService,
+        RefreshTokenService refreshTokens,
+        PasswordEncoder encoder,
+        FieldEncryptor encryptor,
+        TokenIssuer tokenIssuer,
+        VerificationMailer mailer,
+        AuditService audit
+    ) {
         this.users = users;
         this.verificationTokens = verificationTokens;
-        this.consents = consents;
+        this.consentService = consentService;
+        this.refreshTokens = refreshTokens;
         this.encoder = encoder;
         this.encryptor = encryptor;
         this.tokenIssuer = tokenIssuer;
@@ -61,15 +64,15 @@ public class AuthService {
         if (request.role() == Role.MODERATOR) {
             throw ApiException.forbidden("El rol moderador no se obtiene por registro");
         }
-        String phone = request.phone() == null || request.phone().isBlank()
+        final String phone = request.phone() == null || request.phone().isBlank()
             ? null
             : request.phone().replaceAll("\\s", "");
         if (request.role() == Role.SELLER && phone == null) {
             throw ApiException.invalid("phone: El teléfono es obligatorio para vender.");
         }
-        String email = request.email().trim().toLowerCase();
-        String displayName = request.displayName().trim();
-        List<String> conflicts = new ArrayList<>();
+        final String email = request.email().trim().toLowerCase();
+        final String displayName = request.displayName().trim();
+        final List<String> conflicts = new ArrayList<>();
         if (users.existsByEmail(email)) {
             conflicts.add("email: Ya existe una cuenta con el correo electrónico.");
         }
@@ -80,8 +83,8 @@ public class AuthService {
             throw ApiException.conflict(conflicts.toArray(String[]::new));
         }
 
-        OffsetDateTime now = OffsetDateTime.now();
-        AppUser user = users.save(AppUser.builder()
+        final OffsetDateTime now = OffsetDateTime.now();
+        final AppUser user = users.save(AppUser.builder()
             .email(email)
             .displayName(displayName)
             .passwordHash(encoder.encode(request.password()))
@@ -91,12 +94,8 @@ public class AuthService {
             .status(AccountStatus.PENDING_VERIFICATION)
             .createdAt(now)
             .build());
-        consents.save(Consent.builder()
-            .user(user)
-            .type("TERMS")
-            .grantedAt(now)
-            .build());
-        VerificationToken token = verificationTokens.save(VerificationToken.builder()
+        consentService.grantAtSignUp(user, request.acceptsLocation(), request.acceptsNotifications(), now);
+        final VerificationToken token = verificationTokens.save(VerificationToken.builder()
             .user(user)
             .token(randomToken())
             .expiresAt(now.plus(LINK_TTL))
@@ -109,12 +108,12 @@ public class AuthService {
 
     @Transactional
     public void verify(String tokenValue) {
-        OffsetDateTime now = OffsetDateTime.now();
-        VerificationToken token = verificationTokens.findByToken(tokenValue)
+        final OffsetDateTime now = OffsetDateTime.now();
+        final VerificationToken token = verificationTokens.findByToken(tokenValue)
             .filter(t -> t.getUsedAt() == null && t.getExpiresAt().isAfter(now))
             .orElseThrow(() -> ApiException.conflict("El enlace no es válido o ya venció"));
         token.setUsedAt(now);
-        AppUser user = token.getUser();
+        final AppUser user = token.getUser();
         if (user.getStatus() == AccountStatus.PENDING_VERIFICATION) {
             user.setStatus(AccountStatus.ACTIVE);
             user.setVerifiedAt(now);
@@ -123,18 +122,26 @@ public class AuthService {
 
     @Transactional
     public Auth.TokenResponse login(Auth.LoginRequest request) {
-        AppUser user = users.findByEmail(request.email().trim().toLowerCase())
+        final AppUser user = users.findByEmail(request.email().trim().toLowerCase())
             .filter(u -> encoder.matches(request.password(), u.getPasswordHash()))
             .orElseThrow(() -> ApiException.unauthorized("Correo o contraseña incorrectos"));
         if (user.getStatus() == AccountStatus.SUSPENDED || user.getStatus() == AccountStatus.DELETED) {
             throw ApiException.forbidden("La cuenta no está activa");
         }
         audit.log(user.getId(), "LOGIN", "user", user.getId());
-        return tokenIssuer.issue(user);
+        return tokenIssuer.issue(user, refreshTokens.start(user));
+    }
+
+    public Auth.TokenResponse refresh(String refreshToken) {
+        return refreshTokens.rotate(refreshToken);
+    }
+
+    public void logout(String refreshToken) {
+        refreshTokens.logout(refreshToken);
     }
 
     private String randomToken() {
-        byte[] bytes = new byte[32];
+        final byte[] bytes = new byte[32];
         random.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }

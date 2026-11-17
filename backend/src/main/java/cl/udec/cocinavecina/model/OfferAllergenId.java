@@ -27,5 +27,4 @@ public class OfferAllergenId implements Serializable {
     @NotNull
     @Column(name = "allergen", nullable = false, length = 30)
     private String allergen;
-
 }

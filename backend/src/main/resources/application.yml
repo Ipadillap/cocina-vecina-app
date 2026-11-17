@@ -31,6 +31,9 @@ cocinavecina:
   jwt:
     secret: ${JWT_SECRET:dev-only-change-this-secret-of-32-bytes!!}
     access-token-ttl: 15m
+    refresh-token-ttl: 30d
+  consent:
+    text-version: ${CONSENT_TEXT_VERSION:v1}
   encryption:
     key-base64: ${ENCRYPTION_KEY:iui0vbs1Xi9OQM3kQTqsohgZKI8vOKPeBXIVvcHok7w=}
   code:

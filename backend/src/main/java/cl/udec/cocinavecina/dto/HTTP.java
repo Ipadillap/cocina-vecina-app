@@ -1,7 +1,8 @@
 package cl.udec.cocinavecina.dto;
 
 public final class HTTP {
-    private HTTP() {}
+    private HTTP() {
+    }
 
     public record Response(int status) {
         public static final Response BAD_REQUEST = new Response(400);

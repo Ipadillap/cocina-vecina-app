@@ -7,5 +7,5 @@ public enum Category {
     SALADS,
     PASTRY,
     HOMEMADE_BREAD,
-    OTHER
+    OTHER,
 }

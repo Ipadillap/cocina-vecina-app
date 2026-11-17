@@ -37,4 +37,15 @@ public class AuthController {
     public Auth.TokenResponse login(@Valid @RequestBody Auth.LoginRequest request) {
         return authService.login(request);
     }
+
+    @PostMapping("/refresh")
+    public Auth.TokenResponse refresh(@Valid @RequestBody Auth.RefreshRequest request) {
+        return authService.refresh(request.refreshToken());
+    }
+
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@Valid @RequestBody Auth.RefreshRequest request) {
+        authService.logout(request.refreshToken());
+    }
 }

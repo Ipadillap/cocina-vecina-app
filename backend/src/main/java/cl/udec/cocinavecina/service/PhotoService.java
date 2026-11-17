@@ -2,6 +2,8 @@ package cl.udec.cocinavecina.service;
 
 import cl.udec.cocinavecina.dto.UploadUrl;
 import cl.udec.cocinavecina.exception.ApiException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,7 @@ import java.util.regex.Pattern;
 
 @Service
 public class PhotoService {
+    private static final Logger log = LoggerFactory.getLogger(PhotoService.class);
     private static final int MAX_BYTES = 1_048_576;
     private static final Pattern KEY = Pattern.compile(
         "^([0-9]+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|webp)$"
@@ -66,6 +69,17 @@ public class PhotoService {
             throw ApiException.conflict("Esa foto ya fue subida");
         } catch (IOException e) {
             throw new IllegalStateException("No se pudo guardar la foto", e);
+        }
+    }
+
+    public void delete(String key) {
+        if (key == null || !KEY.matcher(key).matches()) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(directory.resolve(key));
+        } catch (IOException e) {
+            log.warn("No se pudo borrar la foto {}: {}", key, e.getMessage());
         }
     }
 

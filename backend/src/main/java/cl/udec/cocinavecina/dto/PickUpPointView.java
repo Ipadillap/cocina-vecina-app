@@ -5,4 +5,5 @@ public record PickUpPointView(
     String alias,
     double approxLatitude,
     double approxLongitude
-) {}
+) {
+}

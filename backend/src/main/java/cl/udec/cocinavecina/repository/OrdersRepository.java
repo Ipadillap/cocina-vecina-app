@@ -2,15 +2,19 @@ package cl.udec.cocinavecina.repository;
 
 import cl.udec.cocinavecina.model.Order;
 import cl.udec.cocinavecina.projection.OrderSummaryProjection;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.jpa.repository.Lock;
+import cl.udec.cocinavecina.projection.SaleProjection;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.repository.query.Param;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrdersRepository extends JpaRepository<Order, Long> {
     @Query(
@@ -47,4 +51,28 @@ public interface OrdersRepository extends JpaRepository<Order, Long> {
     List<Order> findByBuyer_IdOrSeller_IdOrderByAcceptedAtDesc(Long buyerId, Long sellerId);
 
     List<Order> findByRequest_IdIn(Collection<Long> requestIds);
+
+    @Query(
+        value = """
+            select o.id, o.offer_id, f.title as offer_title, o.agreed_price, o.portions, o.delivered_at
+            from orders o
+            join offer f on f.id = o.offer_id
+            where o.seller_id = :sellerId
+              and o.status = 'DELIVERED'
+              and o.delivered_at >= :from
+              and o.delivered_at < :to
+            order by o.delivered_at
+            """,
+        nativeQuery = true
+    )
+    List<SaleProjection> findDeliveredBySeller(
+        @Param("sellerId") Long sellerId,
+        @Param("from") OffsetDateTime from,
+        @Param("to") OffsetDateTime to
+    );
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints(@QueryHint(name = "jakarta.persistence.lock.timeout", value = "-2"))
+    @Query("select o from Order o where o.status in :open and o.windowEnd <= :now")
+    List<Order> findWindowExpired(@Param("open") Collection<String> open, @Param("now") OffsetDateTime now);
 }

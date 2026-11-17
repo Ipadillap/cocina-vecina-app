@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
 import java.time.OffsetDateTime;
 
 @Entity
@@ -21,6 +22,8 @@ public class AppUser {
     private AccountStatus status;
     @Column(name = "verified_at")
     private OffsetDateTime verifiedAt;
+    @Column(name = "deletion_requested_at")
+    private OffsetDateTime deletionRequestedAt;
     @NotNull
     @Column(name = "adult_declared", nullable = false)
     private Boolean adultDeclared;
@@ -44,5 +47,4 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-
 }

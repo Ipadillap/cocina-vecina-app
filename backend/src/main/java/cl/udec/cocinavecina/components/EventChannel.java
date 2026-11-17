@@ -1,8 +1,8 @@
 package cl.udec.cocinavecina.components;
 
 import cl.udec.cocinavecina.dto.UserEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -17,18 +17,18 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Component
 @ConditionalOnWebApplication
 public class EventChannel extends TextWebSocketHandler {
-    private static final Logger log = LoggerFactory.getLogger(EventChannel.class);
     private static final int SEND_TIMEOUT_MS = 5_000;
     private static final int BUFFER_BYTES = 64 * 1024;
 
     private final Map<Long, Map<String, WebSocketSession>> sessions = new ConcurrentHashMap<>();
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws IOException {
-        Long userId = userId(session);
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) throws IOException {
+        final Long userId = userId(session);
         if (userId == null) {
             session.close(CloseStatus.POLICY_VIOLATION);
             return;
@@ -38,12 +38,12 @@ public class EventChannel extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        Long userId = userId(session);
+    public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
+        final Long userId = userId(session);
         if (userId == null) {
             return;
         }
-        Map<String, WebSocketSession> userSessions = sessions.get(userId);
+        final Map<String, WebSocketSession> userSessions = sessions.get(userId);
         if (userSessions != null) {
             userSessions.remove(session.getId());
             if (userSessions.isEmpty()) {
@@ -53,9 +53,9 @@ public class EventChannel extends TextWebSocketHandler {
     }
 
     public void send(Collection<Long> recipients, UserEvent event) {
-        TextMessage message = new TextMessage(toJson(event));
+        final TextMessage message = new TextMessage(toJson(event));
         for (Long userId : recipients) {
-            Map<String, WebSocketSession> userSessions = sessions.get(userId);
+            final Map<String, WebSocketSession> userSessions = sessions.get(userId);
             if (userSessions == null) {
                 continue;
             }
@@ -72,7 +72,7 @@ public class EventChannel extends TextWebSocketHandler {
     }
 
     private static Long userId(WebSocketSession session) {
-        Principal principal = session.getPrincipal();
+        final Principal principal = session.getPrincipal();
         if (principal == null) {
             return null;
         }

@@ -1,5 +1,9 @@
 package cl.udec.cocinavecina.repository;
 
+import jakarta.persistence.QueryHint;
+import org.springframework.data.jpa.repository.QueryHints;
+import java.util.Collection;
+import java.time.OffsetDateTime;
 import cl.udec.cocinavecina.model.Offer;
 import cl.udec.cocinavecina.projection.NearbyOfferProjection;
 import cl.udec.cocinavecina.projection.OfferProjection;
@@ -131,4 +135,34 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
         nativeQuery = true
     )
     int reserve(@Param("offerId") Long offerId, @Param("portions") int portions);
+
+    long countBySeller_IdAndPublishedAtGreaterThanEqualAndPublishedAtLessThan(
+        Long sellerId, OffsetDateTime from, OffsetDateTime to);
+
+    @Modifying(flushAutomatically = true)
+    @Query(
+        value = """
+            update offer
+            set status = 'EXPIRED', closed_at = :now
+            where status = 'ACTIVE' and expires_at <= :now
+            """,
+        nativeQuery = true
+    )
+    int expireDue(@Param("now") OffsetDateTime now);
+
+    @Query("select o.photoKey from Offer o where o.seller.id = :sellerId and o.photoKey is not null")
+    List<String> findPhotoKeysBySeller(@Param("sellerId") Long sellerId);
+
+    @Modifying(flushAutomatically = true)
+    @Query(value = "update offer set photo_key = null where seller_id = :sellerId", nativeQuery = true)
+    void clearPhotosBySeller(@Param("sellerId") Long sellerId);
+
+    @Query("""
+        select o from Offer o
+        where o.photoKey is not null
+          and o.status not in :alive
+          and coalesce(o.closedAt, o.expiresAt) < :cutoff
+        """)
+    List<Offer> findPhotoPurgeable(
+        @Param("alive") Collection<OfferStatus> alive, @Param("cutoff") OffsetDateTime cutoff);
 }

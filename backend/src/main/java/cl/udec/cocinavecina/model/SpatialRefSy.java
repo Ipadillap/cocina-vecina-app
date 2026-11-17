@@ -33,6 +33,4 @@ public class SpatialRefSy {
     @Size(max = 2048)
     @Column(name = "proj4text", length = 2048)
     private String proj4text;
-
-
 }

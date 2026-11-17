@@ -38,5 +38,10 @@ public class Consent {
     @Column(name = "revoked_at")
     private OffsetDateTime revokedAt;
 
+    @Size(max = 20)
+    @NotNull
+    @Column(name = "text_version", nullable = false, length = 20)
+    private String textVersion;
+
 
 }

@@ -14,8 +14,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SearchRateLimitFilter extends OncePerRequestFilter {
-
-    private record Window(long minute, AtomicInteger count) {}
+    private record Window(
+        long minute,
+        AtomicInteger count
+    ) {
+    }
 
     private final int limitPerMinute;
     private final Map<String, Window> windows = new ConcurrentHashMap<>();
@@ -32,14 +35,16 @@ public class SearchRateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String key = auth != null ? auth.getName() : request.getRemoteAddr();
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final String key = auth != null ? auth.getName() : request.getRemoteAddr();
         long minute = System.currentTimeMillis() / 60_000;
         if (windows.size() > 10_000) {
             windows.values().removeIf(w -> w.minute() != minute);
         }
-        Window window = windows.compute(key, (k, v) ->
-            v == null || v.minute() != minute ? new Window(minute, new AtomicInteger()) : v);
+        final Window window = windows.compute(
+            key, (k, v) ->
+                v == null || v.minute() != minute ? new Window(minute, new AtomicInteger()) : v
+        );
         if (window.count().incrementAndGet() > limitPerMinute) {
             response.setStatus(429);
             response.setContentType("application/json");

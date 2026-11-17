@@ -1,28 +1,15 @@
 package cl.udec.cocinavecina.service;
 
 import cl.udec.cocinavecina.components.RealtimeEvent;
-import cl.udec.cocinavecina.dto.UserEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import cl.udec.cocinavecina.dto.NewPurchaseRequest;
 import cl.udec.cocinavecina.dto.ProposalView;
 import cl.udec.cocinavecina.dto.PurchaseRequestView;
+import cl.udec.cocinavecina.dto.UserEvent;
 import cl.udec.cocinavecina.exception.ApiException;
-import cl.udec.cocinavecina.model.AccountStatus;
-import cl.udec.cocinavecina.model.AppUser;
-import cl.udec.cocinavecina.model.Offer;
-import cl.udec.cocinavecina.model.OfferStatus;
-import cl.udec.cocinavecina.model.Order;
-import cl.udec.cocinavecina.model.OrderStatus;
-import cl.udec.cocinavecina.model.Party;
-import cl.udec.cocinavecina.model.Proposal;
-import cl.udec.cocinavecina.model.PurchaseRequest;
-import cl.udec.cocinavecina.model.PurchaseRequestStatus;
-import cl.udec.cocinavecina.repository.AppUserRepository;
-import cl.udec.cocinavecina.repository.OfferRepository;
-import cl.udec.cocinavecina.repository.OrdersRepository;
-import cl.udec.cocinavecina.repository.ProposalRepository;
-import cl.udec.cocinavecina.repository.PurchaseRequestRepository;
+import cl.udec.cocinavecina.model.*;
+import cl.udec.cocinavecina.repository.*;
 import cl.udec.cocinavecina.rules.NegotiationRules;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +21,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class NegotiationService {
-
     private static final Duration PICKUP_WINDOW = Duration.ofHours(2);
     private static final List<String> OPEN_STATUSES = List.of(
         PurchaseRequestStatus.OFFER_SENT.name(),
@@ -66,7 +52,6 @@ public class NegotiationService {
         this.audit = audit;
         this.events = events;
     }
-
 
     @Transactional
     public PurchaseRequestView submit(Long buyerId, Long offerId, NewPurchaseRequest body) {
@@ -125,7 +110,9 @@ public class NegotiationService {
         return view(request);
     }
 
-    /** RF-7, RB-2 y RB-3: el vendedor responde con un precio entre la propuesta vigente y el base. */
+    /**
+     * RF-7, RB-2 y RB-3: el vendedor responde con un precio entre la propuesta vigente y el base.
+     */
     @Transactional
     public PurchaseRequestView counteroffer(Long sellerId, Long requestId, int unitPrice) {
         final PurchaseRequest request = lock(requestId);
@@ -135,7 +122,8 @@ public class NegotiationService {
         requireTurn(request, Party.SELLER);
         NegotiationRules.validateRoundAvailable(request.getRounds());
         NegotiationRules.validateCounteroffer(
-            unitPrice, request.getCurrentPrice(), request.getOffer().getBasePrice());
+            unitPrice, request.getCurrentPrice(), request.getOffer().getBasePrice()
+        );
 
         request.setRounds(request.getRounds() + 1);
         move(request, Party.SELLER, unitPrice);
@@ -144,7 +132,9 @@ public class NegotiationService {
         return view(request);
     }
 
-    /** RF-6: el comprador responde a una contraoferta con otro precio. */
+    /**
+     * RF-6: el comprador responde a una contraoferta con otro precio.
+     */
     @Transactional
     public PurchaseRequestView propose(Long buyerId, Long requestId, int unitPrice) {
         final PurchaseRequest request = lock(requestId);
@@ -202,11 +192,14 @@ public class NegotiationService {
         notifyParties(request, "REQUEST_ACCEPTED");
         events.publishEvent(new RealtimeEvent(
             List.of(request.getBuyer().getId(), request.getSeller().getId()),
-            new UserEvent("ORDER_CREATED", "order", order.getId(), order.getStatus())));
+            new UserEvent("ORDER_CREATED", "order", order.getId(), order.getStatus())
+        ));
         return view(request);
     }
 
-    /** RF-7: quien tiene el turno rechaza la propuesta vigente y la negociación termina. */
+    /**
+     * RF-7: quien tiene el turno rechaza la propuesta vigente y la negociación termina.
+     */
     @Transactional
     public PurchaseRequestView reject(Long userId, Long requestId) {
         final PurchaseRequest request = lock(requestId);
@@ -219,7 +212,9 @@ public class NegotiationService {
         return view(request);
     }
 
-    /** El comprador retira su solicitud abierta, sin importar de quién sea el turno. */
+    /**
+     * El comprador retira su solicitud abierta, sin importar de quién sea el turno.
+     */
     @Transactional
     public PurchaseRequestView withdraw(Long buyerId, Long requestId) {
         final PurchaseRequest request = lock(requestId);
@@ -236,7 +231,8 @@ public class NegotiationService {
     private void notifyParties(PurchaseRequest request, String type) {
         events.publishEvent(new RealtimeEvent(
             List.of(request.getBuyer().getId(), request.getSeller().getId()),
-            new UserEvent(type, "purchase_request", request.getId(), request.getStatus())));
+            new UserEvent(type, "purchase_request", request.getId(), request.getStatus())
+        ));
     }
 
     private PurchaseRequest lock(Long requestId) {
@@ -280,7 +276,9 @@ public class NegotiationService {
         }
     }
 
-    /** Responde la parte contraria a la que hizo la última propuesta; nadie, si la solicitud está cerrada. */
+    /**
+     * Responde la parte contraria a la que hizo la última propuesta; nadie, si la solicitud está cerrada.
+     */
     private static Party turn(PurchaseRequest request) {
         return PurchaseRequestStatus.valueOf(request.getStatus()).isOpen()
             ? Party.valueOf(request.getCurrentParty()).other()
@@ -307,10 +305,12 @@ public class NegotiationService {
             .build());
     }
 
-    private static void close(PurchaseRequest request,
-                              PurchaseRequestStatus status,
-                              String reason,
-                              OffsetDateTime now) {
+    private static void close(
+        PurchaseRequest request,
+        PurchaseRequestStatus status,
+        String reason,
+        OffsetDateTime now
+    ) {
         request.setStatus(status.name());
         request.setCloseReason(reason);
         request.setUpdatedAt(now);
@@ -320,7 +320,9 @@ public class NegotiationService {
         return views(List.of(request)).getFirst();
     }
 
-    /** Arma las vistas con dos consultas en total (propuestas y pedidos), no dos por solicitud. */
+    /**
+     * Arma las vistas con dos consultas en total (propuestas y pedidos), no dos por solicitud.
+     */
     private List<PurchaseRequestView> views(List<PurchaseRequest> list) {
         if (list.isEmpty()) {
             return List.of();

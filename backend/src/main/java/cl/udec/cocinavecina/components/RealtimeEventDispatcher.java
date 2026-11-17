@@ -15,7 +15,7 @@ public class RealtimeEventDispatcher {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onEvent(RealtimeEvent event) {
-        EventChannel eventChannel = channel.getIfAvailable();
+        final EventChannel eventChannel = channel.getIfAvailable();
         if (eventChannel != null) {
             eventChannel.send(event.recipients(), event.event());
         }

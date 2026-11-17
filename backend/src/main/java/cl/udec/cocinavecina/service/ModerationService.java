@@ -1,18 +1,8 @@
 package cl.udec.cocinavecina.service;
 
-import cl.udec.cocinavecina.dto.AccountDecision;
-import cl.udec.cocinavecina.dto.NewReport;
-import cl.udec.cocinavecina.dto.OfferDecision;
-import cl.udec.cocinavecina.dto.OfferUnderReview;
-import cl.udec.cocinavecina.dto.ReportView;
+import cl.udec.cocinavecina.dto.*;
 import cl.udec.cocinavecina.exception.ApiException;
-import cl.udec.cocinavecina.model.AccountStatus;
-import cl.udec.cocinavecina.model.AppUser;
-import cl.udec.cocinavecina.model.Offer;
-import cl.udec.cocinavecina.model.OfferStatus;
-import cl.udec.cocinavecina.model.Report;
-import cl.udec.cocinavecina.model.ReportReason;
-import cl.udec.cocinavecina.model.Role;
+import cl.udec.cocinavecina.model.*;
 import cl.udec.cocinavecina.repository.AppUserRepository;
 import cl.udec.cocinavecina.repository.OfferRepository;
 import cl.udec.cocinavecina.repository.PurchaseRequestRepository;
@@ -35,19 +25,22 @@ public class ModerationService {
     private final AppUserRepository users;
     private final PurchaseRequestRepository purchaseRequests;
     private final AuditService audit;
+    private final RefreshTokenService refreshTokens;
 
     public ModerationService(
         ReportRepository reports,
         OfferRepository offers,
         AppUserRepository users,
         PurchaseRequestRepository purchaseRequests,
-        AuditService audit
+        AuditService audit,
+        RefreshTokenService refreshTokens
     ) {
         this.reports = reports;
         this.offers = offers;
         this.users = users;
         this.purchaseRequests = purchaseRequests;
         this.audit = audit;
+        this.refreshTokens = refreshTokens;
     }
 
     @Transactional
@@ -151,6 +144,7 @@ public class ModerationService {
                 }
                 target.setStatus(AccountStatus.SUSPENDED);
                 offers.closeAllBySeller(userId);
+                refreshTokens.revokeAll(userId);
                 audit.log(moderatorId, "ACCOUNT_SUSPENDED", "app_user", userId, decision.reason());
             }
             case REACTIVATE -> {

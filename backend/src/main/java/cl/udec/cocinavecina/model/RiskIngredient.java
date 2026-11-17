@@ -6,5 +6,5 @@ public enum RiskIngredient {
     RAW_OR_UNDERCOOKED_EGG,
     UNPASTEURIZED_DAIRY,
     HOME_CANNED,
-    INFANT_FOOD
+    INFANT_FOOD,
 }

@@ -9,7 +9,9 @@ import java.util.List;
 public record AccountExport(
     Account account,
     List<OfferView> offers,
-    List<OrderSummary> orders
+    List<OrderSummary> orders,
+    List<ConsentView> consents,
+    List<RatingEntry> ratings
 ) {
     public record Account(
         long id,
@@ -21,7 +23,16 @@ public record AccountExport(
         boolean adultDeclared,
         Instant createdAt,
         Instant verifiedAt
-    ) {}
+    ) {
+    }
+
+    public record RatingEntry(
+        long orderId,
+        String direction,
+        int score,
+        Instant createdAt
+    ) {
+    }
 
     public record OrderSummary(
         long id,
@@ -32,5 +43,6 @@ public record AccountExport(
         int portions,
         String status,
         Instant acceptedAt
-    ) {}
+    ) {
+    }
 }

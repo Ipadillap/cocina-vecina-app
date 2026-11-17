@@ -24,4 +24,5 @@ public record OfferView(
     OfferStatus status,
     double approxLatitude,
     double approxLongitude
-) {}
+) {
+}

@@ -10,13 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,9 +26,11 @@ public class NegotiationController {
     @PostMapping("/offers/{offerId}/purchase-requests")
     @PreAuthorize("hasRole('BUYER')")
     @ResponseStatus(HttpStatus.CREATED)
-    public PurchaseRequestView submit(@AuthenticationPrincipal Jwt jwt,
-                                      @PathVariable Long offerId,
-                                      @Valid @RequestBody NewPurchaseRequest body) {
+    public PurchaseRequestView submit(
+        @AuthenticationPrincipal Jwt jwt,
+        @PathVariable Long offerId,
+        @Valid @RequestBody NewPurchaseRequest body
+    ) {
         return negotiationService.submit(CurrentUser.id(jwt), offerId, body);
     }
 
@@ -56,17 +52,21 @@ public class NegotiationController {
 
     @PostMapping("/purchase-requests/{id}/counteroffers")
     @PreAuthorize("hasRole('SELLER')")
-    public PurchaseRequestView counteroffer(@AuthenticationPrincipal Jwt jwt,
-                                            @PathVariable Long id,
-                                            @Valid @RequestBody Price body) {
+    public PurchaseRequestView counteroffer(
+        @AuthenticationPrincipal Jwt jwt,
+        @PathVariable Long id,
+        @Valid @RequestBody Price body
+    ) {
         return negotiationService.counteroffer(CurrentUser.id(jwt), id, body.unitPrice());
     }
 
     @PostMapping("/purchase-requests/{id}/proposals")
     @PreAuthorize("hasRole('BUYER')")
-    public PurchaseRequestView propose(@AuthenticationPrincipal Jwt jwt,
-                                       @PathVariable Long id,
-                                       @Valid @RequestBody Price body) {
+    public PurchaseRequestView propose(
+        @AuthenticationPrincipal Jwt jwt,
+        @PathVariable Long id,
+        @Valid @RequestBody Price body
+    ) {
         return negotiationService.propose(CurrentUser.id(jwt), id, body.unitPrice());
     }
 

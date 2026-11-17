@@ -21,6 +21,4 @@ public class OfferAllergen {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "offer_id", nullable = false)
     private Offer offer;
-
-
 }

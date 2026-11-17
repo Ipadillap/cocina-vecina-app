@@ -37,6 +37,4 @@ public class Proposal {
     @NotNull
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
-
-
 }

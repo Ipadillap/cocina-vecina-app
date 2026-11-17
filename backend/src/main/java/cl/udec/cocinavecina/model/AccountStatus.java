@@ -1,8 +1,9 @@
 package cl.udec.cocinavecina.model;
 
 public enum AccountStatus {
-     PENDING_VERIFICATION,
+    PENDING_VERIFICATION,
     ACTIVE,
+    PENDING_DELETION,
     SUSPENDED,
-    DELETED
+    DELETED,
 }

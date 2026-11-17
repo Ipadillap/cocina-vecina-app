@@ -21,7 +21,7 @@ public class LocalPhotosConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String location = directory.toUri().toString();
+        final String location = directory.toUri().toString();
         registry.addResourceHandler("/photos/**")
             .addResourceLocations(location.endsWith("/") ? location : location + "/")
             .setCacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePublic());

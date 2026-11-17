@@ -3,12 +3,12 @@ package cl.udec.cocinavecina.rules;
 import cl.udec.cocinavecina.exception.ApiException;
 
 public final class NegotiationRules {
-
     public static final int MAX_ROUNDS = 3;
     public static final int MAX_PORTIONS = 5;
     public static final int PRICE_STEP = 100;
 
-    private NegotiationRules() {}
+    private NegotiationRules() {
+    }
 
     public static void validatePortions(int portions, int availablePortions) {
         if (portions < 1 || portions > MAX_PORTIONS) {

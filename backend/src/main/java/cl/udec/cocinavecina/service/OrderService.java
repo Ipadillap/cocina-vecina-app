@@ -1,12 +1,11 @@
 package cl.udec.cocinavecina.service;
 
-import cl.udec.cocinavecina.components.RealtimeEvent;
-import cl.udec.cocinavecina.dto.UserEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import cl.udec.cocinavecina.components.FieldEncryptor;
+import cl.udec.cocinavecina.components.RealtimeEvent;
 import cl.udec.cocinavecina.dto.CodeView;
 import cl.udec.cocinavecina.dto.OrderView;
 import cl.udec.cocinavecina.dto.PickupDetailsView;
+import cl.udec.cocinavecina.dto.UserEvent;
 import cl.udec.cocinavecina.exception.ApiException;
 import cl.udec.cocinavecina.model.Order;
 import cl.udec.cocinavecina.model.OrderStatus;
@@ -14,6 +13,7 @@ import cl.udec.cocinavecina.model.PickupPoint;
 import cl.udec.cocinavecina.repository.OfferRepository;
 import cl.udec.cocinavecina.repository.OrdersRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -199,7 +199,8 @@ public class OrderService {
     private void notifyParties(Order order, String type) {
         events.publishEvent(new RealtimeEvent(
             List.of(order.getBuyer().getId(), order.getSeller().getId()),
-            new UserEvent(type, "order", order.getId(), order.getStatus())));
+            new UserEvent(type, "order", order.getId(), order.getStatus())
+        ));
     }
 
     private Order find(Long orderId) {

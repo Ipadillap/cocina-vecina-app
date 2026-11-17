@@ -92,6 +92,4 @@ public class Order {
     @ColumnDefault("0")
     @Column(name = "code_issues", nullable = false)
     private Integer codeIssues;
-
-
 }

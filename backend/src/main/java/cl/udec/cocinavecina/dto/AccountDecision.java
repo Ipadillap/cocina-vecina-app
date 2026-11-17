@@ -13,6 +13,6 @@ public record AccountDecision(
 ) {
     public enum Action {
         SUSPEND,
-        REACTIVATE
+        REACTIVATE,
     }
 }

@@ -1,7 +1,6 @@
 package cl.udec.cocinavecina.components;
 
 import cl.udec.cocinavecina.dto.Auth;
-import cl.udec.cocinavecina.model.AccountStatus;
 import cl.udec.cocinavecina.model.AppUser;
 import cl.udec.cocinavecina.model.Role;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +25,8 @@ public class TokenIssuer {
         this.ttl = ttl;
     }
 
-    public Auth.TokenResponse issue(AppUser user) {
-        Instant now = Instant.now();
+    public Auth.TokenResponse issue(AppUser user, String refreshToken) {
+        final Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuer("cocinavecina")
             .issuedAt(now)
@@ -35,10 +34,10 @@ public class TokenIssuer {
             .subject(String.valueOf(user.getId()))
             .claim("roles", roles(user.getRole()))
             .build();
-        String token = encoder.encode(JwtEncoderParameters.from(
+        final String token = encoder.encode(JwtEncoderParameters.from(
             JwsHeader.with(MacAlgorithm.HS256).build(), claims)).getTokenValue();
         return new Auth.TokenResponse(
-            token, ttl.toSeconds(), user.getId(), user.getRole(), user.getStatus() == AccountStatus.ACTIVE);
+            token, ttl.toSeconds(), user.getId(), user.getRole(), user.getVerifiedAt() != null, refreshToken);
     }
 
     private static List<String> roles(Role role) {

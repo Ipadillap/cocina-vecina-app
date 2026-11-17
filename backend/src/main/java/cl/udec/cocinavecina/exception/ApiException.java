@@ -12,10 +12,12 @@ public class ApiException extends RuntimeException {
     private final ApiResponse response;
 
     @Builder
-    public ApiException(String title,
-                        HTTP.Response status,
-                        String message,
-                        List<String> detail) {
+    public ApiException(
+        String title,
+        HTTP.Response status,
+        String message,
+        List<String> detail
+    ) {
         super(message);
         this.response = new ApiResponse(title, status.status(), detail);
     }

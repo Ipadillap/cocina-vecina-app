@@ -72,6 +72,4 @@ public class PurchaseRequest {
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
-
-
 }

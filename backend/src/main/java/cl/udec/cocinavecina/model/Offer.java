@@ -83,6 +83,4 @@ public class Offer {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private OfferStatus status;
-
-
 }

@@ -130,21 +130,23 @@ Decisiones de diseño que conviene conocer antes de tocar el código:
 
 Implementado: flujo principal de extremo a extremo (registro → publicar → buscar en mapa y lista →
 proponer/contraofertar/aceptar → desbloqueo → listo para retiro → código/QR → entregado), cancelación,
-reportes con ocultamiento automático, cola de moderación, exportación y eliminación de cuenta, tareas de
-expiración y limpieza, y pruebas unitarias de las reglas de negocio.
+reportes con ocultamiento automático, cola de moderación, exportación y eliminación de cuenta (diferida si hay
+pedidos en curso), refresh token rotativo de 30 días con detección de reuso, consentimientos separados con
+revocación, historial mensual del vendedor, calificaciones y tareas programadas (expiración de ofertas,
+solicitudes y ventana de retiro; limpieza de fotos, auditoría y tokens). Con `TASKS_ENABLED=true` (o en el
+worker) las tareas corren en ese proceso.
 
 Pendiente, en orden sugerido:
 
-1. **Pruebas de integración** con Testcontainers (PostGIS) para TC-01 a TC-17, en especial TC-06 (50 aceptaciones
-   concurrentes) y TC-07 (suite de accesos no autorizados); luego activar `jacocoTestCoverageVerification` (RNF-M-1).
-2. **RNF-S-1 completo:** token de renovación rotativo de 30 días y MFA (TOTP) para moderadores.
-3. **Push real (RF-11):** implementar `PushNotifier` con Firebase Admin SDK y agregar `app/google-services.json`
+1. **MFA (TOTP)** para moderadores (RNF-S-1).
+2. **Push real (RF-11):** implementar el envío con Firebase Admin SDK y agregar `app/google-services.json`
    (no se versiona) desde la consola de Firebase.
-4. **Consentimientos (RB-9):** entidad sobre la tabla `consent` ya creada y su pantalla en la app.
-5. **RF-13:** programar la eliminación cuando el usuario tiene pedidos en curso (hoy responde 409).
-6. **RF-12 y RF-14:** historial con ingresos por período y calificaciones (tabla `rating` ya creada).
-7. Activar los controles estrictos (RNF-M-2): `./gradlew spotlessApply` y `ktlintFormat`, luego
+3. **Límites de abuso (RNF-S-5):** 10 propuestas por hora por comprador y 3 reenvíos de verificación por hora.
+4. **Retención (§5.1):** anonimizar actividad con más de 12 meses y limpiar fotos subidas sin oferta.
+5. Activar los controles estrictos (RNF-M-2): `./gradlew spotlessApply` y `ktlintFormat`, luego
    `isEnforceCheck = true`, `ignoreFailures = false` y `-Pstrict` en CI.
+6. **Pruebas de integración** con Testcontainers (PostGIS) para TC-01 a TC-17, en especial TC-06 (50 aceptaciones
+   concurrentes) y TC-07 (suite de accesos no autorizados); luego activar `jacocoTestCoverageVerification` (RNF-M-1).
 
 ## Convenciones
 

@@ -12,18 +12,27 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class NominatimGeocoder {
-
-    public record Coordinates(double latitude, double longitude) {}
+    public record Coordinates(
+        double latitude,
+        double longitude
+    ) {
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record NominatimResult(String lat, String lon) {}
+    record NominatimResult(
+        String lat,
+        String lon
+    ) {
+    }
 
     private final RestClient client;
     private final Map<String, Coordinates> cache = new ConcurrentHashMap<>();
     private long lastCall;
 
-    public NominatimGeocoder(@Value("${cocinavecina.nominatim.url}") String url,
-                             @Value("${cocinavecina.nominatim.contact}") String contact) {
+    public NominatimGeocoder(
+        @Value("${cocinavecina.nominatim.url}") String url,
+        @Value("${cocinavecina.nominatim.contact}") String contact
+    ) {
         this.client = RestClient.builder()
             .baseUrl(url)
             .defaultHeader(HttpHeaders.USER_AGENT, "CocinaVecina/0.1 (" + contact + ")")
@@ -31,13 +40,13 @@ public class NominatimGeocoder {
     }
 
     public Optional<Coordinates> geocode(String address) {
-        String key = address.trim().toLowerCase();
-        Coordinates cached = cache.get(key);
+        final String key = address.trim().toLowerCase();
+        final Coordinates cached = cache.get(key);
         if (cached != null) {
             return Optional.of(cached);
         }
         waitForTurn();
-        NominatimResult[] results = client.get()
+        final NominatimResult[] results = client.get()
             .uri(u -> u.path("/search")
                 .queryParam("q", address)
                 .queryParam("format", "jsonv2")
@@ -49,14 +58,14 @@ public class NominatimGeocoder {
         if (results == null || results.length == 0) {
             return Optional.empty();
         }
-        Coordinates coordinates = new Coordinates(
+        final Coordinates coordinates = new Coordinates(
             Double.parseDouble(results[0].lat()), Double.parseDouble(results[0].lon()));
         cache.put(key, coordinates);
         return Optional.of(coordinates);
     }
 
     private synchronized void waitForTurn() {
-        long wait = 1000 - (System.currentTimeMillis() - lastCall);
+        final long wait = 1000 - (System.currentTimeMillis() - lastCall);
         if (wait > 0) {
             try {
                 Thread.sleep(wait);

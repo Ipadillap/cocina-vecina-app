@@ -13,6 +13,6 @@ public record OfferDecision(
 ) {
     public enum Action {
         REACTIVATE,
-        WITHDRAW
+        WITHDRAW,
     }
 }

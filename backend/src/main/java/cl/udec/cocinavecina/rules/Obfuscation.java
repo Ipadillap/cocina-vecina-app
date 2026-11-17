@@ -1,7 +1,6 @@
 package cl.udec.cocinavecina.rules;
 
 public final class Obfuscation {
-
     public static final double CELL_SIZE_METERS = 400.0;
     private static final double METERS_PER_DEGREE_LATITUDE = 111_320.0;
     private static final double REFERENCE_LATITUDE = -36.827;
@@ -9,13 +8,18 @@ public final class Obfuscation {
     private static final double LONGITUDE_STEP =
         CELL_SIZE_METERS / (METERS_PER_DEGREE_LATITUDE * Math.cos(Math.toRadians(REFERENCE_LATITUDE)));
 
-    private Obfuscation() {}
+    private Obfuscation() {
+    }
 
-    public record Cell(double latitude, double longitude) {}
+    public record Cell(
+        double latitude,
+        double longitude
+    ) {
+    }
 
     public static Cell cellCenter(double latitude, double longitude) {
-        double lat = (Math.floor(latitude / LATITUDE_STEP) + 0.5) * LATITUDE_STEP;
-        double lon = (Math.floor(longitude / LONGITUDE_STEP) + 0.5) * LONGITUDE_STEP;
+        final double lat = (Math.floor(latitude / LATITUDE_STEP) + 0.5) * LATITUDE_STEP;
+        final double lon = (Math.floor(longitude / LONGITUDE_STEP) + 0.5) * LONGITUDE_STEP;
         return new Cell(lat, lon);
     }
 
