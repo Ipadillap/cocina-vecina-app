@@ -20,6 +20,7 @@ import cl.udec.cocinavecina.data.network.PickupDetailsView
 import cl.udec.cocinavecina.data.network.PickupPointView
 import cl.udec.cocinavecina.data.network.Price
 import cl.udec.cocinavecina.data.network.Problem
+import cl.udec.cocinavecina.data.network.RefreshRequest
 import cl.udec.cocinavecina.data.network.ProposalView
 import cl.udec.cocinavecina.data.network.PurchaseRequestView
 import cl.udec.cocinavecina.data.network.SignUpRequest
@@ -474,6 +475,16 @@ class FakeCocinaVecinaApi(
         }
 
     override suspend fun registerDevice(r: DeviceRegistration): Response<Unit> = respond { Response.success(Unit) }
+
+    override suspend fun unregisterDevice(pushToken: String): Response<Unit> = respond { Response.success(Unit) }
+
+    override suspend fun logout(r: RefreshRequest): Response<Unit> = respond { Response.success(Unit) }
+
+    override suspend fun verify(token: String): ResponseBody =
+        respond {
+            if (token.isBlank()) fail(409, "El enlace no es válido o ya venció")
+            "Cuenta verificada.".toResponseBody("text/plain".toMediaType())
+        }
 
     override suspend fun account(): AccountView =
         respond {

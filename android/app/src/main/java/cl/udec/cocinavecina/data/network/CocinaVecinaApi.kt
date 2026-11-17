@@ -21,6 +21,16 @@ interface CocinaVecinaApi {
         @Body s: SignUpRequest,
     ): SignUpResponse
 
+    @GET("v1/auth/verify")
+    suspend fun verify(
+        @Query("token") token: String,
+    ): ResponseBody
+
+    @POST("v1/auth/logout")
+    suspend fun logout(
+        @Body r: RefreshRequest,
+    ): Response<Unit>
+
     @GET("v1/account")
     suspend fun account(): AccountView
 
@@ -167,5 +177,10 @@ interface CocinaVecinaApi {
     @POST("v1/devices")
     suspend fun registerDevice(
         @Body r: DeviceRegistration,
+    ): Response<Unit>
+
+    @DELETE("v1/devices/{pushToken}")
+    suspend fun unregisterDevice(
+        @Path("pushToken") pushToken: String,
     ): Response<Unit>
 }

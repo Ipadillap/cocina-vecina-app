@@ -27,6 +27,15 @@ class AccountViewModel(
 
     fun onRetry() = load()
 
+    /** Recarga la cuenta sin spinner (p. ej. tras verificar el correo en el navegador). */
+    fun refresh() {
+        if (mutableState.value.isLoading) return
+        viewModelScope.launch {
+            val account = safely { loadAccount() }.getOrNull() ?: return@launch
+            mutableState.update { it.copy(account = account) }
+        }
+    }
+
     fun onPermissionsChanged(
         isLocationGranted: Boolean,
         areNotificationsEnabled: Boolean,

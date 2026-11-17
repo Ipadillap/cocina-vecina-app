@@ -1,3 +1,4 @@
+import java.net.URI
 import java.util.Properties
 
 plugins {
@@ -34,6 +35,10 @@ android {
 
         val apiUrl = setting("cocinavecina.apiUrl") ?: "http://10.0.2.2:8088"
         buildConfigField("String", "API_URL", "\"$apiUrl\"")
+        // El enlace de verificación del correo (/v1/auth/verify) abre la app solo en el host de la API.
+        val apiUri = URI(apiUrl)
+        manifestPlaceholders["apiScheme"] = apiUri.scheme
+        manifestPlaceholders["apiHost"] = apiUri.host
         buildConfigField("String", "MAP_STYLE", "\"https://tiles.openfreemap.org/styles/liberty\"")
         // Release siempre usa la API real; debug lo sobrescribe más abajo con cocinavecina.useFakeApi.
         buildConfigField("Boolean", "USE_FAKE_API", "false")

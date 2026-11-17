@@ -163,6 +163,19 @@ private fun ProfileHeader(
                         Icon(Icons.Filled.CheckCircle, contentDescription = null, modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.tertiary)
                         Text("Correo verificado", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
+                } else {
+                    Text(
+                        "Correo sin verificar. Abre el enlace que te enviamos para publicar y comprar.",
+                        modifier =
+                            Modifier
+                                .padding(top = 4.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.errorContainer)
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
                 }
             }
         }

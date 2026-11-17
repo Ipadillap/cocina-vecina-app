@@ -54,6 +54,7 @@ import cl.udec.cocinavecina.ui.requests.RequestTrackingRoute
 import cl.udec.cocinavecina.ui.requests.RequestsScreen
 import cl.udec.cocinavecina.ui.seller.SellerDashboardScreen
 import cl.udec.cocinavecina.ui.signup.SignUpRoute
+import cl.udec.cocinavecina.ui.verification.VerificationDialog
 import kotlinx.coroutines.launch
 
 private const val NO_DISTANCE = -1L
@@ -74,6 +75,8 @@ fun AppNavigation(container: AppContainer) {
         SessionState.Anonymous -> AnonymousFlow(container.repository)
         is SessionState.Active -> MainScaffold(container, session)
     }
+    val verification by container.verification.state.collectAsStateWithLifecycle()
+    VerificationDialog(verification, container.verification::dismiss)
 }
 
 @Composable
@@ -106,6 +109,7 @@ private fun MainScaffold(
     val logout: () -> Unit = {
         scope.launch {
             container.events.disconnect()
+            container.endSession()
             container.session.clear()
         }
     }
@@ -127,7 +131,11 @@ private fun MainScaffold(
             if (session.isSeller) add(Destination(SELL_ROUTE, "Vender", Icons.Filled.Add))
             add(Destination(ACCOUNT_ROUTE, "Cuenta", Icons.Filled.Person))
         }
-    LaunchedEffect(session.userId) { container.events.connect() }
+    LaunchedEffect(session.userId) {
+        container.events.connect()
+        container.registerPush()
+    }
+    val verificationVersion by container.verification.successCount.collectAsStateWithLifecycle()
     val currentEntry by nav.currentBackStackEntryAsState()
     val selectedTab =
         remember(currentEntry, destinations) {
@@ -270,6 +278,7 @@ private fun MainScaffold(
                 TabRootScreen("Mi cuenta", onBack = { nav.openTab(START_ROUTE) }) {
                     AccountRoute(
                         repository = container.repository,
+                        verificationVersion = verificationVersion,
                         onModerationClick = { nav.navigate(MODERATION_ROUTE) },
                         onLogout = logout,
                     )

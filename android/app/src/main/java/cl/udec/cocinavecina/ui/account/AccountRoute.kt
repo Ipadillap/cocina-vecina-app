@@ -29,6 +29,7 @@ private const val JSON_MIME_TYPE = "application/json"
 @Composable
 fun AccountRoute(
     repository: Repository,
+    verificationVersion: Int,
     onModerationClick: () -> Unit,
     onLogout: () -> Unit,
 ) {
@@ -59,7 +60,8 @@ fun AccountRoute(
                 viewModel.onExportDestinationChosen { content -> context.writeText(uri, content) }
             }
         }
-    LifecycleResumeEffect(Unit) {
+    LifecycleResumeEffect(verificationVersion) {
+        viewModel.refresh()
         viewModel.onPermissionsChanged(
             isLocationGranted = Locator.hasPermission(context),
             areNotificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled(),
