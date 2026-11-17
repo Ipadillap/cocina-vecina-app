@@ -2,8 +2,7 @@ package cl.udec.cocinavecina.service;
 
 import cl.udec.cocinavecina.dto.UploadUrl;
 import cl.udec.cocinavecina.exception.ApiException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +16,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 public class PhotoService {
-    private static final Logger log = LoggerFactory.getLogger(PhotoService.class);
     private static final int MAX_BYTES = 1_048_576;
     private static final Pattern KEY = Pattern.compile(
         "^([0-9]+)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.(jpg|webp)$"

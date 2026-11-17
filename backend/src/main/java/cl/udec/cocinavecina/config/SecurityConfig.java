@@ -33,7 +33,7 @@ public class SecurityConfig {
     SecurityFilterChain api(
         HttpSecurity http,
         @Value("${cocinavecina.search.limit-per-minute}") int searchLimit
-    ) throws Exception {
+    ) {
         return http.csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(a -> a
