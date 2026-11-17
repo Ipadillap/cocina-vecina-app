@@ -56,7 +56,8 @@ public class SecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+        // RNF-S-1: Argon2id con sal de 16 B, hash de 32 B, p = 1, m = 19 MiB (19 456 KiB), t = 2 (OWASP)
+        return new Argon2PasswordEncoder(16, 32, 1, 19_456, 2);
     }
 
     private static JwtAuthenticationConverter rolesConverter() {

@@ -1,0 +1,9 @@
+{
+  "ataques": 1000000,
+  "intentos_por_ataque": 5,
+  "aciertos": 4,
+  "p_observada": 4e-06,
+  "p_teorica": 5e-06,
+  "esperado": 5.0,
+  "cumple_RB11": true
+}

@@ -1,0 +1,31 @@
+{
+  "escenario": {
+    "compradores": 50,
+    "porciones": 5,
+    "repeticiones": 100
+  },
+  "postgres": "16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "mecanismos": {
+    "ALT-1 UPDATE condicionado": {
+      "repeticiones_con_sobreventa": 0,
+      "max_porciones_vendidas": 5,
+      "latencia_ms_p50": 19.4,
+      "latencia_ms_p95": 31.4,
+      "latencia_ms_max": 75.5
+    },
+    "ALT-2 SELECT FOR UPDATE": {
+      "repeticiones_con_sobreventa": 0,
+      "max_porciones_vendidas": 5,
+      "latencia_ms_p50": 19.4,
+      "latencia_ms_p95": 32.7,
+      "latencia_ms_max": 51.0
+    },
+    "ALT-3 leer y escribir": {
+      "repeticiones_con_sobreventa": 100,
+      "max_porciones_vendidas": 50,
+      "latencia_ms_p50": 37.0,
+      "latencia_ms_p95": 54.1,
+      "latencia_ms_max": 83.5
+    }
+  }
+}

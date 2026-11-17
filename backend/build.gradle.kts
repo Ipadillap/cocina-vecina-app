@@ -57,6 +57,14 @@ tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
 
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}
+
 tasks.jacocoTestReport {
     reports {
         xml.required = true
@@ -68,11 +76,8 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             element = "PACKAGE"
-            includes = listOf(
-                "cl.udec.cocinavecina.offers",
-                "cl.udec.cocinavecina.negotiation",
-                "cl.udec.cocinavecina.orders",
-            )
+            // RNF-M-1: cobertura de líneas ≥ 70 % en las reglas de dominio
+            includes = listOf("cl.udec.cocinavecina.rules")
             limit {
                 counter = "LINE"
                 minimum = "0.70".toBigDecimal()

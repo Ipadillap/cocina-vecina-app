@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend · pruebas y cobertura
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Pruebas, reporte JaCoCo y umbral de cobertura (RNF-M-1)
+        run: ./gradlew check jacocoTestReport --no-daemon
+      - name: Resumen de cobertura
+        if: always()
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import xml.etree.ElementTree as ET, pathlib
+          p = pathlib.Path("build/reports/jacoco/test/jacocoTestReport.xml")
+          if p.exists():
+              r = ET.parse(p).getroot()
+              print("| Paquete | Líneas cubiertas |\n|---|---|")
+              for pkg in r.findall("package"):
+                  c = next((x for x in pkg.findall("counter") if x.get("type") == "LINE"), None)
+                  if c is not None:
+                      cov, miss = int(c.get("covered")), int(c.get("missed"))
+                      print(f"| {pkg.get('name')} | {100 * cov / (cov + miss):.1f} % |")
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-reportes
+          path: |
+            backend/build/reports/tests/test
+            backend/build/reports/jacoco/test
+
+  stock:
+    name: Concurrencia de stock (RNF-R-4)
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cocinavecina
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-retries 10
+          -e POSTGRES_INITDB_ARGS=--auth=trust
+    env:
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar migraciones
+        run: |
+          for f in backend/src/main/resources/db/migration/V*.sql; do
+            psql -h localhost -U postgres -d cocinavecina -v ON_ERROR_STOP=1 -q -f "$f"
+          done
+      - run: pip install "psycopg[binary]"
+      - name: 50 aceptaciones × 5 porciones × 100 repeticiones
+        run: python3 perf/stock_concurrency.py "host=localhost port=5432 dbname=cocinavecina user=postgres password=postgres"
+      - name: Fallar si ALT-1 sobrevende
+        run: |
+          python3 -c "
+          import json, sys
+          r = json.load(open('perf/resultados_stock.json'))['mecanismos']['ALT-1 UPDATE condicionado']
+          print(r)
+          sys.exit(1 if r['repeticiones_con_sobreventa'] else 0)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resultados-stock
+          path: perf/resultados_stock.json
+
+  app:
+    name: App Android · pruebas unitarias y estilo
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew testDebugUnitTest ktlintCheck --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: app-reportes
+          path: android/app/build/reports/tests/testDebugUnitTest
+
+  contrato:
+    name: Contrato OpenAPI (RNF-C-2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npx --yes @redocly/cli@latest lint docs/api/openapi.yaml
